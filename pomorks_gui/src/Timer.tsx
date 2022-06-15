@@ -3,9 +3,9 @@ import { useTimer } from "use-timer"
 import { PomodoroState } from "./pomodoroStatus"
 import { TYPE_STATE } from "./pomodoroStatus"
 import { getTimerSeconds } from "./pomodoroStatus"
+import { getStringOfStatus } from "./pomodoroStatus"
 
-export function PomodoroTimer() {
-  const state: PomodoroState = new PomodoroState("WORK");
+export function PomodoroTimer({state}: {state: PomodoroState}) {
   const {
     time,
     start,
@@ -19,13 +19,14 @@ export function PomodoroTimer() {
   });
 
   function startPomodoro(state: PomodoroState) {
+    start();
     state.setNextState();
-    return start();
+    console.log("start pressed. state is ", getStringOfStatus(state.getState(), state.workCount));
   }
 
   return (
     <div style={{ textAlign: "center" }}>
-      <h1>Pomorks</h1>
+      <h1>{getStringOfStatus(state.getState(), state.workCount)} </h1>
       <div style={{ fontSize: "100px" }}>
         <span>{Math.floor(time/60)}</span>:<span>{time%60}</span>
       </div>

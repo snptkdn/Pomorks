@@ -4,6 +4,7 @@ import { invoke } from '@tauri-apps/api/tauri'
 import { open } from '@tauri-apps/api/dialog'
 import { sendNotification } from '@tauri-apps/api/notification'
 import { PomodoroTimer } from './Timer'
+import { PomodoroState } from './pomodoroStatus'
 
 function App() {
   function sendTime () {
@@ -18,12 +19,12 @@ function App() {
     })
   }
 
-  const time = new Date();
+  const state: PomodoroState = new PomodoroState("BREAK");
   return (
     <div className="App">
       <header className="App-header">
         <div>
-          <PomodoroTimer/>
+          <PomodoroTimer state={state}/>
         </div>
 
         <button onClick={executeCommands}>Click to exexcute command</button>

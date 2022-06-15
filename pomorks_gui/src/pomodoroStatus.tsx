@@ -9,7 +9,7 @@ export class PomodoroState {
 
   constructor(state: TYPE_STATE) {
     this.state = state;
-    this.workCount = 0;
+    this.workCount = 1;
   }
 
   // method
@@ -18,19 +18,19 @@ export class PomodoroState {
   // Todo!:よくない...
   setNextState() {
 
-    if (this.state == "WORK") {
+    if (this.state === "WORK") {
       this.workCount++;
     }
 
     const isNextLunch = () => {
-      return this.state == "WORK" && this.workCount == 4;
+      return this.state === "WORK" && this.workCount === 4;
     }
 
     const isNextBreak = () => {
-      return this.state == "WORK" && this.workCount != 4;
+      return this.state === "WORK" && this.workCount !== 4;
     }
 
-    if (this.state == "LUNCH" || this.state == "BREAK") {
+    if (this.state === "LUNCH" || this.state === "BREAK") {
       this.state = "WORK"
     }
     else if (isNextBreak()) {
@@ -60,4 +60,14 @@ export function getTimerSeconds(state: TYPE_STATE): number {
   }
 
   return seconds[state];
+}
+
+export function getStringOfStatus(state: TYPE_STATE, count: number): string {
+  const status = {
+    "WORK": "WORK_" + String(count),
+    "BREAK": "BREAK",
+    "LUNCH": "LUNCH"
+  }
+
+  return status[state];
 }
