@@ -5,24 +5,29 @@ import { TYPE_STATE } from "./pomodoroStatus"
 import { getTimerSeconds } from "./pomodoroStatus"
 import { getStringOfStatus } from "./pomodoroStatus"
 
-export function PomodoroTimer({state}: {state: PomodoroState}) {
+let state = new PomodoroState("BREAK", 0);
+
+export function PomodoroTimer() {
   const {
     time,
     start,
     pause,
     reset,
-    status
+    status,
+    advanceTime
   } = useTimer({
-    initialTime: getTimerSeconds(state.getState()),
+    initialTime: getTimerSeconds("BREAK"),
     timerType: "DECREMENTAL",
-    endTime: 0
+    endTime: 0,
+    onTimeOver: () => {
+      pause();
+      state = state.getNextState();
+      advanceTime(-getTimerSeconds(state.getState()));
+      if (state.getState() === "WORK") {
+        state.incrementWorkCount();
+      }
+    }
   });
-
-  function startPomodoro(state: PomodoroState) {
-    start();
-    state.setNextState();
-    console.log("start pressed. state is ", getStringOfStatus(state.getState(), state.workCount));
-  }
 
   return (
     <div style={{ textAlign: "center" }}>
@@ -31,15 +36,11 @@ export function PomodoroTimer({state}: {state: PomodoroState}) {
         <span>{Math.floor(time/60)}</span>:<span>{time%60}</span>
       </div>
       <p>{ status === "RUNNING" ? "Process..." : "Done!" } </p>
-      <button onClick={() => startPomodoro(state)}>Start</button>
+      <button onClick={start}>Start</button>
       <button onClick={pause}>Pause</button>
       <button
         onClick={() => {
-          const stateStatus = state.getState();
-          const timerSeconds = getTimerSeconds(stateStatus);
-          const time = new Date();
-
-          time.setSeconds(time.getSeconds() + timerSeconds) // 25minutes
+          state = new PomodoroState("BREAK", 0);
           reset();
         }}
       >

@@ -7,20 +7,18 @@ export class PomodoroState {
   state: TYPE_STATE;
   workCount: number;
 
-  constructor(state: TYPE_STATE) {
+  constructor(state: TYPE_STATE, workCount: number) {
     this.state = state;
-    this.workCount = 1;
+    this.workCount = workCount;
   }
 
   // method
   getState(): TYPE_STATE { return this.state; }
 
-  // Todo!:よくない...
-  setNextState() {
+  incrementWorkCount(): void {this.workCount = this.workCount+1;}
 
-    if (this.state === "WORK") {
-      this.workCount++;
-    }
+  // Todo!:よくない...
+  getNextState(): PomodoroState {
 
     const isNextLunch = () => {
       return this.state === "WORK" && this.workCount === 4;
@@ -31,16 +29,16 @@ export class PomodoroState {
     }
 
     if (this.state === "LUNCH" || this.state === "BREAK") {
-      this.state = "WORK"
+      return new PomodoroState("WORK", this.workCount);
     }
     else if (isNextBreak()) {
-      this.state = "BREAK"
+      return new PomodoroState("BREAK", this.workCount);
     }
     else if (isNextLunch()) {
-      this.state = "LUNCH"
+      return new PomodoroState("LUNCH", this.workCount);
     }
     else {
-      //Todo!:あさーと的な
+      return new PomodoroState("BREAK", 0);
     }
   }
 }
@@ -48,7 +46,8 @@ export class PomodoroState {
 
 export function getTimerSeconds(state: TYPE_STATE): number {
 
-  const minutes = 1;
+
+  const minutes = 0.2;
   const workTime : number = minutes * 25;
   const breakTime: number = minutes *  5;
   const lunchTime: number = minutes * 30;
