@@ -1,10 +1,9 @@
 import React from "react";
 import { useTimer } from "use-timer"
 import { PomodoroState } from "./pomodoroStatus"
-import { TYPE_STATE } from "./pomodoroStatus"
+import { sendNotification } from '@tauri-apps/api/notification'
 import { getTimerSeconds } from "./pomodoroStatus"
 import { getStringOfStatus } from "./pomodoroStatus"
-
 let state = new PomodoroState("BREAK", 0);
 
 export function PomodoroTimer() {
@@ -21,6 +20,7 @@ export function PomodoroTimer() {
     endTime: 0,
     onTimeOver: () => {
       pause();
+      sendNotification(getStringOfStatus(state.getState(), state.workCount) + " is Finish.");
       state = state.getNextState();
       advanceTime(-getTimerSeconds(state.getState()));
       if (state.getState() === "WORK") {
