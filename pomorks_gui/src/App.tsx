@@ -1,27 +1,33 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 import { invoke } from '@tauri-apps/api/tauri'
+import { open } from '@tauri-apps/api/dialog'
+import { sendNotification } from '@tauri-apps/api/notification'
+import { PomodoroTimer } from './Timer'
 
 function App() {
+  function sendTime () {
+    sendNotification('Time is up.')
+  }
+  function openDialog () {
+    open().then(files => console.log(files))
+  }
   function executeCommands() {
-    //invoke('simple_command')
     invoke('command_with_message', {message: 'some message' }).then(message=>{
       console.log('command_with_message', message)
     })
   }
+
+  const time = new Date();
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-
-          <br></br> 
-            Hello, World!
-        </p>
+        <div>
+          <PomodoroTimer/>
+        </div>
 
         <button onClick={executeCommands}>Click to exexcute command</button>
+        <button onClick={sendTime}>Click to open Dialog</button>
 
         <a
           className="App-link"

@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "react-timer-hook": "^3.0.5",
+    "use-timer": "^2.0.1"
+  }
+}
