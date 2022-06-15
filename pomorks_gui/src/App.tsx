@@ -6,6 +6,7 @@ import { sendNotification } from '@tauri-apps/api/notification'
 import { PomodoroTimer } from './Timer'
 import { PomodoroState, TYPE_STATE } from './pomodoroStatus'
 import { getStringOfStatus } from './pomodoroStatus'
+import { Todo } from './todo'
 
 function App() {
   function sendTime () {
@@ -29,6 +30,8 @@ function App() {
 
         <button onClick={executeCommands}>Click to exexcute command</button>
         <button onClick={sendTime}>Click to open Dialog</button>
+
+        <Todo/>
 
         <a
           className="App-link"
