@@ -1,25 +1,15 @@
 import React from 'react';
 import './App.css';
 import { invoke } from '@tauri-apps/api/tauri'
-import { open } from '@tauri-apps/api/dialog'
-import { sendNotification } from '@tauri-apps/api/notification'
 import { PomodoroTimer } from './Timer'
-import { PomodoroState, TYPE_STATE } from './pomodoroStatus'
-import { getStringOfStatus } from './pomodoroStatus'
 import { Todo } from './todo'
 
 function App() {
-  function sendTime () {
-    sendNotification('Time is up.')
-  }
-  function openDialog () {
-    open().then(files => console.log(files))
-  }
-  function executeCommands() {
-    invoke('command_with_message', {message: 'some message' }).then(message=>{
-      console.log('command_with_message', message)
-    })
-  }
+  //function executeCommands() {
+    //invoke('command_with_message', {message: 'some message' }).then(message=>{
+      //console.log('command_with_message', message)
+    //})
+  //}
 
   return (
     <div className="App">
@@ -28,19 +18,7 @@ function App() {
           <PomodoroTimer/>
         </div>
 
-        <button onClick={executeCommands}>Click to exexcute command</button>
-        <button onClick={sendTime}>Click to open Dialog</button>
-
         <Todo/>
-
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
       </header>
     </div>
   );
