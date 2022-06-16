@@ -4,12 +4,16 @@ import { useState } from "react"
 type Todo = {
   title: string,
   readonly id: string,
-  checked: boolean;
+  checked: boolean,
+  removed: boolean,
 }
+
+type Filter = 'all' | 'finished' | 'progress' | 'trash';
 
 export function Todo() {
   const [text, setText] = useState('');
   const [todos, setTodos] = useState<Todo[]>([]);
+  const [filter, setFilter] = useState<Filter>('all');
 
   const handleOnSubmit = () => {
     if (!text) return;
@@ -18,6 +22,7 @@ export function Todo() {
       title: text,
       id: Math.random().toString(32).substring(2),
       checked: false,
+      removed: false,
     };
 
     setTodos([newTodo, ...todos]);
@@ -52,40 +57,92 @@ export function Todo() {
     setTodos(newTodos);
   }
 
+  const handleOnRemove = (id: string, removed: boolean) => {
+    const deepCopy = todos.map((todo) => ({ ...todo }));
+    const newTodos = deepCopy.map((todo) => {
+      if (todo.id === id) {
+        todo.removed = !removed;
+      }
+      return todo;
+    })
+
+    setTodos(newTodos);
+  }
+
+  const handleOnEmpty = () => {
+    const newTodos = todos.filter((todo) => !todo.removed);
+    setTodos(newTodos);
+  }
+
+  const filteredTodos = todos.filter((todo) => {
+    switch (filter) {
+      case 'all':
+        return !todo.removed;
+      case 'finished':
+        return todo.checked && !todo.removed;
+      case 'progress':
+        return !todo.checked && !todo.removed;
+      case 'trash':
+        return todo.removed;
+      default:
+        return todo;
+    }
+  })
+
 
   return (
     <div>
-      <form onSubmit={(e) => {
-        e.preventDefault()
-        handleOnSubmit();
-      }}
+      <select 
+        defaultValue="all" 
+        onChange={(e) => setFilter(e.target.value as Filter)}
       >
-        <input 
-          type="text" 
-          value={text} 
-          onChange={(e) => handleOnChange(e)} 
-        />
-        <input
-          type="submit"
-          value="追加"
-          onSubmit={handleOnSubmit}
-        />
-      </form>
+        <option value="all">All Task</option>
+        <option value="finished">Finished Task</option>
+        <option value="progress">Progress Task</option>
+        <option value="trash">Trash</option>
+      </select>
+      {filter === "trash" ? (
+        <button onClick={() => handleOnEmpty()}>
+          Remove all.
+        </button>
+      ) : (
+        filter !== "finished" && (
+          <form onSubmit={(e) => {
+            e.preventDefault()
+            handleOnSubmit();
+          }}>
+            <input 
+              type="text" 
+              value={text} 
+              onChange={(e) => handleOnChange(e)} 
+            />
+            <input
+              type="submit"
+              value="追加"
+              onSubmit={handleOnSubmit}
+            />
+          </form>
+        )
+      )}
       <ul>
-        {todos.map((todo) => {
+        {filteredTodos.map((todo) => {
           return (
             <li key={todo.id}>
               <input
                 type = "checkbox"
+                disabled = {todo.removed}
                 checked = {todo.checked}
                 onChange={(e) => handleOnCheck(todo.id, todo.checked)}
               />
               <input
                 type = "text"
-                disabled = {todo.checked}
+                disabled = {todo.checked || todo.removed}
                 value = {todo.title}
                 onChange = {(e) => { handleOnEdit(todo.id, e.target.value) }}
               />
+              <button onClick={() => handleOnRemove(todo.id, todo.removed)}>
+                {todo.removed ? '復元' : '削除' }
+              </button>
             </li>
         )})}
       </ul>
