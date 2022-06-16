@@ -4,6 +4,11 @@ import { PomodoroState } from "./pomodoroStatus"
 import { sendNotification } from '@tauri-apps/api/notification'
 import { getTimerSeconds } from "./pomodoroStatus"
 import { getStringOfStatus } from "./pomodoroStatus"
+import { IconButton } from "@mui/material"
+import PlayCircleFilledWhiteIcon from '@mui/icons-material/PlayCircleFilledWhite';
+import PauseCircleIcon from '@mui/icons-material/PauseCircle';
+import StopCircleIcon from '@mui/icons-material/StopCircle';
+
 let state = new PomodoroState("BREAK", 0);
 
 export function PomodoroTimer() {
@@ -31,21 +36,26 @@ export function PomodoroTimer() {
 
   return (
     <div style={{ textAlign: "center" }}>
+      <link rel="stylesheet" type="text/css" href="./Timer.css"></link>
       <h1>{getStringOfStatus(state.getState(), state.workCount)} </h1>
       <div style={{ fontSize: "100px" }}>
         <span>{Math.floor(time/60)}</span>:<span>{time%60}</span>
       </div>
       <p>{ status === "RUNNING" ? "Process..." : "Done!" } </p>
-      <button onClick={start}>Start</button>
-      <button onClick={pause}>Pause</button>
-      <button
+      <IconButton onClick={start}>
+        <PlayCircleFilledWhiteIcon className="Test" style={{ fontSize: "48px" }}></PlayCircleFilledWhiteIcon>
+        </IconButton>
+      <IconButton onClick={pause}>
+        <PauseCircleIcon style={{ fontSize: "48px" }}></PauseCircleIcon>
+        </IconButton>
+      <IconButton
         onClick={() => {
           state = new PomodoroState("BREAK", 0);
           reset();
         }}
       >
-        Restart
-      </button>
+        <StopCircleIcon style={{ fontSize: "48px" }}></StopCircleIcon>
+      </IconButton>
     </div>
   )
 }
