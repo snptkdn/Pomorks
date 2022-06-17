@@ -7,7 +7,7 @@ import { Grid } from '@mui/material';
 import { Rating } from '@mui/material';
 import BoltIcon from '@mui/icons-material/Bolt';
 import Box from '@mui/material/Box';
-import { DataGrid, GridRowsProp, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridSelectionModel, GridColDef } from '@mui/x-data-grid';
 
 type Todo = {
   title: string;
@@ -16,6 +16,8 @@ type Todo = {
   readonly id: string;
   checked: boolean;
   removed: boolean;
+  estimateCount: number;
+  executedCount: number;
 };
 
 type Filter = 'all' | 'finished' | 'progress' | 'trash';
@@ -40,25 +42,30 @@ const columns: GridColDef[] = [
   },
 ];
 
-const rows = [{ title: '機能設計', tag: 'test', project: 'test' }];
-
 export function Todo() {
   const [todo, setValues] = useState({
     title: '',
     tag: '',
     project: '',
+    estimateCount: 0,
+    executedCount: 0,
   });
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filter, setFilter] = useState<Filter>('all');
   const [pomodoroCount, setCount] = useState<number>(0);
+  const [selectionModel, setSelectionModel] = React.useState<GridSelectionModel>([]);
 
   const handleOnSubmit = () => {
     if (!todo.title) return;
+
+    todo.estimateCount = pomodoroCount;
 
     const newTodo: Todo = {
       title: todo.title,
       tag: todo.tag,
       project: todo.project,
+      estimateCount: todo.estimateCount,
+      executedCount: todo.executedCount,
       id: Math.random().toString(32).substring(2),
       checked: false,
       removed: false,
@@ -223,20 +230,25 @@ export function Todo() {
             </Grid>
             <Box sx={{ height: 400, width: '95%' }}>
               <DataGrid
-                getRowId={(row) => row.title}
+                getRowId={(row) => row.id}
+                density="compact"
                 rows={todos.map((todo) => {
                   return {
+                    id: todo.id,
                     title: todo.title,
                     tag: todo.tag,
                     project: todo.project,
+                    pomodoro: String(todo.executedCount) + '/' + String(todo.estimateCount),
                   };
                 })}
                 columns={columns}
                 pageSize={5}
                 rowsPerPageOptions={[5]}
-                checkboxSelection
-                disableSelectionOnClick
                 autoPageSize
+                onSelectionModelChange={(newSelectionModel) => {
+                  setSelectionModel(newSelectionModel);
+                }}
+                selectionModel={selectionModel}
               />
             </Box>
           </form>
