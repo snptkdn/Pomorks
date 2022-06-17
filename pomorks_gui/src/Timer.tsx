@@ -34,6 +34,8 @@ export function PomodoroTimer() {
     }
   });
 
+
+  // styleの指定は別ファイルでやりたい。
   return (
     <div style={{ textAlign: "center" }}>
       <link rel="stylesheet" type="text/css" href="./Timer.css"></link>
@@ -43,10 +45,10 @@ export function PomodoroTimer() {
       </div>
       <p>{ status === "RUNNING" ? "Process..." : "Done!" } </p>
       <IconButton onClick={start}>
-        <PlayCircleFilledWhiteIcon className="Test" style={{ fontSize: "48px" }}></PlayCircleFilledWhiteIcon>
+        <PlayCircleFilledWhiteIcon className="Test" style={{ fontSize:"48px", color:"gray"}}></PlayCircleFilledWhiteIcon>
         </IconButton>
       <IconButton onClick={pause}>
-        <PauseCircleIcon style={{ fontSize: "48px" }}></PauseCircleIcon>
+        <PauseCircleIcon style={{ fontSize: "48px", color:"gray"}}></PauseCircleIcon>
         </IconButton>
       <IconButton
         onClick={() => {
@@ -54,7 +56,7 @@ export function PomodoroTimer() {
           reset();
         }}
       >
-        <StopCircleIcon style={{ fontSize: "48px" }}></StopCircleIcon>
+        <StopCircleIcon style={{ fontSize: "48px", color:"gray" }}></StopCircleIcon>
       </IconButton>
     </div>
   )
