@@ -28,11 +28,22 @@ export function PomodoroTimer({
     onTimeOver: () => {
       pause();
       sendNotification(getStringOfStatus(state.getState(), state.workCount) + ' is Finish.');
-      setState(state.getNextState());
-      advanceTime(-getTimerSeconds(state.getState()));
-      if (state.getState() === 'WORK') {
+      if (state.getState() === 'WORK' && targetTodo !== undefined) {
+        const deepCopy = todos.map((todo) => ({ ...todo }));
+        const newTodos = deepCopy.map((todo) => {
+          if (todo.id === targetTodo.id) {
+            todo.executedCount += 1;
+          }
+          return todo;
+        });
+
+        setTodos(newTodos);
+      }
+      if (state.getState() === 'BREAK' || state.getState() === 'LUNCH') {
         setState(state.getIncrementWorkCountedState());
       }
+      setState(state.getNextState());
+      advanceTime(-getTimerSeconds(state.getState()));
     },
   });
 
