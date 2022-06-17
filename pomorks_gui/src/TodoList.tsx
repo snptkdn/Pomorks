@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState } from 'react';
-import { TextField } from '@mui/material';
+import { Button, TextField } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { IconButton } from '@mui/material';
 import { Grid } from '@mui/material';
@@ -9,28 +9,10 @@ import BoltIcon from '@mui/icons-material/Bolt';
 import Box from '@mui/material/Box';
 import { DataGrid, GridSelectionModel, GridColDef } from '@mui/x-data-grid';
 import { Todo } from './Todo';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 type Filter = 'all' | 'finished' | 'progress' | 'trash';
 type Attribute = 'title' | 'tag' | 'project' | 'pomodoroCount';
-
-const columns: GridColDef[] = [
-  { field: 'title', headerName: 'Title', width: 90 },
-  {
-    field: 'tag',
-    headerName: 'Tag',
-    width: 90,
-  },
-  {
-    field: 'project',
-    headerName: 'Project',
-    width: 90,
-  },
-  {
-    field: 'pomodoro',
-    headerName: 'pomodoro',
-    width: 90,
-  },
-];
 
 export function TodoList({
   todos,
@@ -41,6 +23,51 @@ export function TodoList({
   setTodos: (todos: Todo[]) => void;
   emitTargetTodo: (targetTodo: Todo) => void;
 }) {
+  const DeleteButton = ({ rowId }: { rowId: string }) => {
+    const deleteRow = ({ rowId }: { rowId: string }) => {
+      const deepCopy = todos.map((todo) => ({ ...todo }));
+      const newTodos = deepCopy.filter((todo) => {
+        return todo.id !== rowId;
+      });
+
+      setTodos(newTodos);
+    };
+
+    return (
+      <div>
+        <IconButton onClick={() => deleteRow({ rowId })}>
+          <DeleteIcon style={{ verticalAlign: 'middle', display: 'inline-flex' }}></DeleteIcon>
+        </IconButton>
+      </div>
+    );
+  };
+
+  const columns: GridColDef[] = [
+    { field: 'title', headerName: 'Title', width: 90 },
+    {
+      field: 'tag',
+      headerName: 'Tag',
+      width: 90,
+    },
+    {
+      field: 'project',
+      headerName: 'Project',
+      width: 90,
+    },
+    {
+      field: 'pomodoro',
+      headerName: 'pomodoro',
+      width: 90,
+    },
+    {
+      field: 'deleteButton',
+      headerName: 'delete',
+      sortable: false,
+      width: 90,
+      renderCell: (params) => <DeleteButton rowId={params.id.toString()}></DeleteButton>,
+    },
+  ];
+
   const [todo, setValues] = useState({
     title: '',
     tag: '',
