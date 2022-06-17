@@ -136,7 +136,8 @@ export function Todo() {
                   value={todo.title}
                   variant="standard"
                   placeholder="Input New Task"
-                  inputProps={{ style: { fontSize: 10 } }}
+                  inputProps={{ style: { fontSize: 10, color: 'white' } }}
+                  InputLabelProps={{ style: { color: 'gray' } }}
                   onChange={(e) => handleOnChange(e, 'title')}
                 />
                 <TextField
@@ -144,8 +145,10 @@ export function Todo() {
                   label="Tag"
                   value={todo.tag}
                   variant="standard"
+                  color="secondary"
                   placeholder="Input New Task"
-                  inputProps={{ style: { fontSize: 10 } }}
+                  inputProps={{ style: { fontSize: 10, color: 'white' } }}
+                  InputLabelProps={{ style: { color: 'gray' } }}
                   onChange={(e) => handleOnChange(e, 'tag')}
                 />
                 <TextField
@@ -153,8 +156,10 @@ export function Todo() {
                   label="Project"
                   value={todo.project}
                   variant="standard"
+                  color="warning"
                   placeholder="Input New Task"
-                  inputProps={{ style: { fontSize: 10 } }}
+                  inputProps={{ style: { fontSize: 10, color: 'white' } }}
+                  InputLabelProps={{ style: { color: 'gray' } }}
                   onChange={(e) => handleOnChange(e, 'project')}
                 />
                 <IconButton onClick={handleOnSubmit}>
