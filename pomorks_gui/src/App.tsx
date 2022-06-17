@@ -2,7 +2,7 @@ import React from 'react';
 import './App.css';
 import { invoke } from '@tauri-apps/api/tauri';
 import { PomodoroTimer } from './Timer';
-import { TodoInterface, Todo } from './todo';
+import { TodoList, Todo } from './TodoList';
 import { Grid } from '@mui/material';
 
 function App() {
@@ -22,7 +22,7 @@ function App() {
             <PomodoroTimer targetTodo={targetTodo} />
           </Grid>
           <Grid item xs={8}>
-            <TodoInterface emitTargetTodo={setTargetTodo} />
+            <TodoList emitTargetTodo={setTargetTodo} />
           </Grid>
         </Grid>
       </header>

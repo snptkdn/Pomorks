@@ -1,5 +1,5 @@
 import React from 'react';
-import { Todo } from './todo';
+import { Todo } from './TodoList';
 import { useTimer } from 'use-timer';
 import { PomodoroState } from './pomodoroStatus';
 import { sendNotification } from '@tauri-apps/api/notification';

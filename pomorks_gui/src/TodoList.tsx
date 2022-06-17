@@ -42,7 +42,7 @@ const columns: GridColDef[] = [
   },
 ];
 
-export function TodoInterface({ emitTargetTodo }: { emitTargetTodo: (targetTodo: Todo) => void }) {
+export function TodoList({ emitTargetTodo }: { emitTargetTodo: (targetTodo: Todo) => void }) {
   const [todo, setValues] = useState({
     title: '',
     tag: '',
