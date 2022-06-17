@@ -10,8 +10,6 @@ import PlayCircleFilledWhiteIcon from '@mui/icons-material/PlayCircleFilledWhite
 import PauseCircleIcon from '@mui/icons-material/PauseCircle';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
 
-let state = new PomodoroState('BREAK', 0);
-
 export function PomodoroTimer({
   todos,
   setTodos,
@@ -21,6 +19,8 @@ export function PomodoroTimer({
   setTodos: (todos: Todo[]) => void;
   targetTodo: Todo | undefined;
 }) {
+  const [state, setState] = React.useState<PomodoroState>(new PomodoroState('WORK', 0));
+
   const { time, start, pause, reset, status, advanceTime } = useTimer({
     initialTime: getTimerSeconds('BREAK'),
     timerType: 'DECREMENTAL',
@@ -28,10 +28,10 @@ export function PomodoroTimer({
     onTimeOver: () => {
       pause();
       sendNotification(getStringOfStatus(state.getState(), state.workCount) + ' is Finish.');
-      state = state.getNextState();
+      setState(state.getNextState());
       advanceTime(-getTimerSeconds(state.getState()));
       if (state.getState() === 'WORK') {
-        state.incrementWorkCount();
+        setState(state.getIncrementWorkCountedState());
       }
     },
   });
@@ -57,7 +57,7 @@ export function PomodoroTimer({
       </IconButton>
       <IconButton
         onClick={() => {
-          state = new PomodoroState('BREAK', 0);
+          setState(new PomodoroState('BREAK', 0));
           reset();
         }}
       >

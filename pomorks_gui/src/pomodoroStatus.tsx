@@ -14,8 +14,8 @@ export class PomodoroState {
     return this.state;
   }
 
-  incrementWorkCount(): void {
-    this.workCount = this.workCount + 1;
+  getIncrementWorkCountedState(): PomodoroState {
+    return new PomodoroState(this.getState(), this.workCount + 1);
   }
 
   // Todo!:よくない...
