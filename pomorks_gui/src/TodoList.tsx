@@ -32,7 +32,15 @@ const columns: GridColDef[] = [
   },
 ];
 
-export function TodoList({ emitTargetTodo }: { emitTargetTodo: (targetTodo: Todo) => void }) {
+export function TodoList({
+  todos,
+  setTodos,
+  emitTargetTodo,
+}: {
+  todos: Todo[];
+  setTodos: (todos: Todo[]) => void;
+  emitTargetTodo: (targetTodo: Todo) => void;
+}) {
   const [todo, setValues] = useState({
     title: '',
     tag: '',
@@ -40,7 +48,6 @@ export function TodoList({ emitTargetTodo }: { emitTargetTodo: (targetTodo: Todo
     estimateCount: 0,
     executedCount: 0,
   });
-  const [todos, setTodos] = useState<Todo[]>([]);
   const [filter, setFilter] = useState<Filter>('all');
   const [pomodoroCount, setCount] = useState<number>(0);
   const [selectionModel, setSelectionModel] = React.useState<GridSelectionModel>([]);

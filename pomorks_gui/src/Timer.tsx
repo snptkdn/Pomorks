@@ -12,7 +12,15 @@ import StopCircleIcon from '@mui/icons-material/StopCircle';
 
 let state = new PomodoroState('BREAK', 0);
 
-export function PomodoroTimer({ targetTodo }: { targetTodo: Todo | undefined }) {
+export function PomodoroTimer({
+  todos,
+  setTodos,
+  targetTodo,
+}: {
+  todos: Todo[];
+  setTodos: (todos: Todo[]) => void;
+  targetTodo: Todo | undefined;
+}) {
   const { time, start, pause, reset, status, advanceTime } = useTimer({
     initialTime: getTimerSeconds('BREAK'),
     timerType: 'DECREMENTAL',

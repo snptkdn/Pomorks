@@ -14,16 +14,17 @@ function App() {
   //}
 
   const [targetTodo, setTargetTodo] = React.useState<Todo>();
+  const [todos, setTodos] = React.useState<Todo[]>([]);
 
   return (
     <div className="App">
       <header className="App-header">
         <Grid container>
           <Grid item xs={4}>
-            <PomodoroTimer targetTodo={targetTodo} />
+            <PomodoroTimer todos={todos} setTodos={setTodos} targetTodo={targetTodo} />
           </Grid>
           <Grid item xs={8}>
-            <TodoList emitTargetTodo={setTargetTodo} />
+            <TodoList todos={todos} setTodos={setTodos} emitTargetTodo={setTargetTodo} />
           </Grid>
         </Grid>
       </header>
