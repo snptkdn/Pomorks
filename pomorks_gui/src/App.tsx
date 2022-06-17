@@ -22,7 +22,7 @@ function App() {
             <PomodoroTimer targetTodo={targetTodo} />
           </Grid>
           <Grid item xs={8}>
-            <TodoInterface />
+            <TodoInterface emitTargetTodo={setTargetTodo} />
           </Grid>
         </Grid>
       </header>

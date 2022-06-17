@@ -33,6 +33,7 @@ export function PomodoroTimer({ targetTodo }: { targetTodo: Todo | undefined }) 
     <div style={{ textAlign: 'center' }}>
       <link rel="stylesheet" type="text/css" href="./Timer.css"></link>
       <h1>{getStringOfStatus(state.getState(), state.workCount)} </h1>
+      <h1>{targetTodo === undefined ? 'free' : targetTodo.title} </h1>
       <div style={{ fontSize: '100px' }}>
         <span>{Math.floor(time / 60)}</span>:<span>{time % 60}</span>
       </div>

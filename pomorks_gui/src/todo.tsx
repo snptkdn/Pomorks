@@ -42,7 +42,7 @@ const columns: GridColDef[] = [
   },
 ];
 
-export function TodoInterface() {
+export function TodoInterface({ emitTargetTodo }: { emitTargetTodo: (targetTodo: Todo) => void }) {
   const [todo, setValues] = useState({
     title: '',
     tag: '',
@@ -247,6 +247,12 @@ export function TodoInterface() {
                 autoPageSize
                 onSelectionModelChange={(newSelectionModel) => {
                   setSelectionModel(newSelectionModel);
+                  const target = todos.find((todo) => {
+                    return todo.id === newSelectionModel[0];
+                  });
+                  if (target !== undefined) {
+                    emitTargetTodo(target);
+                  }
                 }}
                 selectionModel={selectionModel}
               />
