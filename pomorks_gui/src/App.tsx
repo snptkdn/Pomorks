@@ -1,46 +1,28 @@
 import React from 'react';
 import './App.css';
-import { invoke } from '@tauri-apps/api/tauri'
-import { open } from '@tauri-apps/api/dialog'
-import { sendNotification } from '@tauri-apps/api/notification'
-import { PomodoroTimer } from './Timer'
-import { PomodoroState, TYPE_STATE } from './pomodoroStatus'
-import { getStringOfStatus } from './pomodoroStatus'
-import { Todo } from './todo'
+import { invoke } from '@tauri-apps/api/tauri';
+import { PomodoroTimer } from './Timer';
+import { Todo } from './todo';
+import { Grid } from '@mui/material';
 
 function App() {
-  function sendTime () {
-    sendNotification('Time is up.')
-  }
-  function openDialog () {
-    open().then(files => console.log(files))
-  }
-  function executeCommands() {
-    invoke('command_with_message', {message: 'some message' }).then(message=>{
-      console.log('command_with_message', message)
-    })
-  }
+  //function executeCommands() {
+  //invoke('command_with_message', {message: 'some message' }).then(message=>{
+  //console.log('command_with_message', message)
+  //})
+  //}
 
   return (
     <div className="App">
       <header className="App-header">
-        <div>
-          <PomodoroTimer/>
-        </div>
-
-        <button onClick={executeCommands}>Click to exexcute command</button>
-        <button onClick={sendTime}>Click to open Dialog</button>
-
-        <Todo/>
-
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <Grid container>
+          <Grid item xs={4}>
+            <PomodoroTimer />
+          </Grid>
+          <Grid item xs={8}>
+            <Todo />
+          </Grid>
+        </Grid>
       </header>
     </div>
   );

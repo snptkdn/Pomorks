@@ -1,51 +1,58 @@
-import React from "react";
-import { useTimer } from "use-timer"
-import { PomodoroState } from "./pomodoroStatus"
-import { sendNotification } from '@tauri-apps/api/notification'
-import { getTimerSeconds } from "./pomodoroStatus"
-import { getStringOfStatus } from "./pomodoroStatus"
-let state = new PomodoroState("BREAK", 0);
+import React from 'react';
+import { useTimer } from 'use-timer';
+import { PomodoroState } from './pomodoroStatus';
+import { sendNotification } from '@tauri-apps/api/notification';
+import { getTimerSeconds } from './pomodoroStatus';
+import { getStringOfStatus } from './pomodoroStatus';
+import { IconButton } from '@mui/material';
+import PlayCircleFilledWhiteIcon from '@mui/icons-material/PlayCircleFilledWhite';
+import PauseCircleIcon from '@mui/icons-material/PauseCircle';
+import StopCircleIcon from '@mui/icons-material/StopCircle';
+
+let state = new PomodoroState('BREAK', 0);
 
 export function PomodoroTimer() {
-  const {
-    time,
-    start,
-    pause,
-    reset,
-    status,
-    advanceTime
-  } = useTimer({
-    initialTime: getTimerSeconds("BREAK"),
-    timerType: "DECREMENTAL",
+  const { time, start, pause, reset, status, advanceTime } = useTimer({
+    initialTime: getTimerSeconds('BREAK'),
+    timerType: 'DECREMENTAL',
     endTime: 0,
     onTimeOver: () => {
       pause();
-      sendNotification(getStringOfStatus(state.getState(), state.workCount) + " is Finish.");
+      sendNotification(getStringOfStatus(state.getState(), state.workCount) + ' is Finish.');
       state = state.getNextState();
       advanceTime(-getTimerSeconds(state.getState()));
-      if (state.getState() === "WORK") {
+      if (state.getState() === 'WORK') {
         state.incrementWorkCount();
       }
-    }
+    },
   });
 
+  // styleの指定は別ファイルでやりたい。
   return (
-    <div style={{ textAlign: "center" }}>
+    <div style={{ textAlign: 'center' }}>
+      <link rel="stylesheet" type="text/css" href="./Timer.css"></link>
       <h1>{getStringOfStatus(state.getState(), state.workCount)} </h1>
-      <div style={{ fontSize: "100px" }}>
-        <span>{Math.floor(time/60)}</span>:<span>{time%60}</span>
+      <div style={{ fontSize: '100px' }}>
+        <span>{Math.floor(time / 60)}</span>:<span>{time % 60}</span>
       </div>
-      <p>{ status === "RUNNING" ? "Process..." : "Done!" } </p>
-      <button onClick={start}>Start</button>
-      <button onClick={pause}>Pause</button>
-      <button
+      <p>{status === 'RUNNING' ? 'Process...' : 'Done!'} </p>
+      <IconButton onClick={start}>
+        <PlayCircleFilledWhiteIcon
+          className="Test"
+          style={{ fontSize: '48px', color: 'gray' }}
+        ></PlayCircleFilledWhiteIcon>
+      </IconButton>
+      <IconButton onClick={pause}>
+        <PauseCircleIcon style={{ fontSize: '48px', color: 'gray' }}></PauseCircleIcon>
+      </IconButton>
+      <IconButton
         onClick={() => {
-          state = new PomodoroState("BREAK", 0);
+          state = new PomodoroState('BREAK', 0);
           reset();
         }}
       >
-        Restart
-      </button>
+        <StopCircleIcon style={{ fontSize: '48px', color: 'gray' }}></StopCircleIcon>
+      </IconButton>
     </div>
-  )
+  );
 }
