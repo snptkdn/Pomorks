@@ -6,7 +6,8 @@ import { IconButton } from '@mui/material';
 import { Grid } from '@mui/material';
 import { Rating } from '@mui/material';
 import BoltIcon from '@mui/icons-material/Bolt';
-import BatteryChargingFullIcon from '@mui/icons-material/BatteryChargingFull';
+import Box from '@mui/material/Box';
+import { DataGrid, GridRowsProp, GridColDef } from '@mui/x-data-grid';
 
 type Todo = {
   title: string;
@@ -19,6 +20,27 @@ type Todo = {
 
 type Filter = 'all' | 'finished' | 'progress' | 'trash';
 type Attribute = 'title' | 'tag' | 'project' | 'pomodoroCount';
+
+const columns: GridColDef[] = [
+  { field: 'title', headerName: 'Title', width: 90 },
+  {
+    field: 'tag',
+    headerName: 'Tag',
+    width: 90,
+  },
+  {
+    field: 'project',
+    headerName: 'Project',
+    width: 90,
+  },
+  {
+    field: 'pomodoro',
+    headerName: 'pomodoro',
+    width: 90,
+  },
+];
+
+const rows = [{ title: '機能設計', tag: 'test', project: 'test' }];
 
 export function Todo() {
   const [todo, setValues] = useState({
@@ -191,7 +213,7 @@ export function Todo() {
                   max={10}
                   precision={0.5}
                   icon={<BoltIcon fontSize="inherit" />}
-                  emptyIcon={<BatteryChargingFullIcon fontSize="inherit" />}
+                  emptyIcon={<BoltIcon fontSize="inherit" />}
                   onChange={(e, newValue) => {
                     if (newValue === null) return;
                     setCount(newValue);
@@ -199,6 +221,24 @@ export function Todo() {
                 />
               </Grid>
             </Grid>
+            <Box sx={{ height: 400, width: '95%' }}>
+              <DataGrid
+                getRowId={(row) => row.title}
+                rows={todos.map((todo) => {
+                  return {
+                    title: todo.title,
+                    tag: todo.tag,
+                    project: todo.project,
+                  };
+                })}
+                columns={columns}
+                pageSize={5}
+                rowsPerPageOptions={[5]}
+                checkboxSelection
+                disableSelectionOnClick
+                autoPageSize
+              />
+            </Box>
           </form>
         )
       )}
