@@ -8,17 +8,7 @@ import { Rating } from '@mui/material';
 import BoltIcon from '@mui/icons-material/Bolt';
 import Box from '@mui/material/Box';
 import { DataGrid, GridSelectionModel, GridColDef } from '@mui/x-data-grid';
-
-export type Todo = {
-  title: string;
-  tag: string;
-  project: string;
-  readonly id: string;
-  checked: boolean;
-  removed: boolean;
-  estimateCount: number;
-  executedCount: number;
-};
+import { Todo } from './Todo';
 
 type Filter = 'all' | 'finished' | 'progress' | 'trash';
 type Attribute = 'title' | 'tag' | 'project' | 'pomodoroCount';

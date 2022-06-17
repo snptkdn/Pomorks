@@ -2,7 +2,8 @@ import React from 'react';
 import './App.css';
 import { invoke } from '@tauri-apps/api/tauri';
 import { PomodoroTimer } from './Timer';
-import { TodoList, Todo } from './TodoList';
+import { TodoList } from './TodoList';
+import { Todo } from './Todo';
 import { Grid } from '@mui/material';
 
 function App() {
