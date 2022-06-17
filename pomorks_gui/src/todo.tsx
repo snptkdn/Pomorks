@@ -1,6 +1,8 @@
 import React from "react";
 import { useState } from "react"
 import { TextField } from "@mui/material"
+import AddIcon from '@mui/icons-material/Add';
+import { IconButton } from "@mui/material"
 
 type Todo = {
   title: string,
@@ -120,12 +122,10 @@ export function Todo() {
               placeholder="Input New Task"
               onChange={(e) => handleOnChange(e)} 
             />
-            <input
-              type="submit"
-              value="追加"
-              onSubmit={handleOnSubmit}
-            />
-          </form>
+            <IconButton onClick={handleOnSubmit}>
+              <AddIcon></AddIcon>
+            </IconButton>
+            </form>
         )
       )}
       <ul>
