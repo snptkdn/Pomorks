@@ -1,5 +1,6 @@
 import React from "react";
 import { useState } from "react"
+import { TextField } from "@mui/material"
 
 type Todo = {
   title: string,
@@ -29,7 +30,7 @@ export function Todo() {
     setText("");
   }
 
-  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setText(e.target.value);
   }
 
@@ -111,9 +112,12 @@ export function Todo() {
             e.preventDefault()
             handleOnSubmit();
           }}>
-            <input 
-              type="text" 
+            <TextField 
+              margin="normal"
+              label="NewTask"
+              fullWidth
               value={text} 
+              placeholder="Input New Task"
               onChange={(e) => handleOnChange(e)} 
             />
             <input
