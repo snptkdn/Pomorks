@@ -3,6 +3,7 @@ import './App.css';
 import { invoke } from '@tauri-apps/api/tauri'
 import { PomodoroTimer } from './Timer'
 import { Todo } from './todo'
+import { Grid } from '@mui/material'
 
 function App() {
   //function executeCommands() {
@@ -14,11 +15,14 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <div>
-          <PomodoroTimer/>
-        </div>
-
-        <Todo/>
+        <Grid container>
+          <Grid item xs={4}>
+            <PomodoroTimer/>
+          </Grid>
+          <Grid item xs={8}>
+            <Todo/>
+          </Grid>
+        </Grid>
       </header>
     </div>
   );
