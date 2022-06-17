@@ -4,7 +4,9 @@ import { TextField } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { IconButton } from '@mui/material';
 import { Grid } from '@mui/material';
-import { height } from '@mui/system';
+import { Rating } from '@mui/material';
+import BoltIcon from '@mui/icons-material/Bolt';
+import BatteryChargingFullIcon from '@mui/icons-material/BatteryChargingFull';
 
 type Todo = {
   title: string;
@@ -16,7 +18,7 @@ type Todo = {
 };
 
 type Filter = 'all' | 'finished' | 'progress' | 'trash';
-type Attribute = 'title' | 'tag' | 'project';
+type Attribute = 'title' | 'tag' | 'project' | 'pomodoroCount';
 
 export function Todo() {
   const [todo, setValues] = useState({
@@ -26,6 +28,7 @@ export function Todo() {
   });
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filter, setFilter] = useState<Filter>('all');
+  const [pomodoroCount, setCount] = useState<number>(0);
 
   const handleOnSubmit = () => {
     if (!todo.title) return;
@@ -56,6 +59,11 @@ export function Todo() {
         break;
       case 'project':
         setValues({ ...todo, project: e.target.value });
+        break;
+      case 'pomodoroCount':
+        const value = parseInt(e.target.value);
+
+        setCount(isNaN(value) ? 0 : value);
         break;
     }
   };
@@ -165,6 +173,30 @@ export function Todo() {
                 <IconButton onClick={handleOnSubmit}>
                   <AddIcon style={{ verticalAlign: 'middle', display: 'inline-flex' }}></AddIcon>
                 </IconButton>
+                <TextField
+                  margin="normal"
+                  label="Pomodoro"
+                  value={pomodoroCount}
+                  size="small"
+                  variant="standard"
+                  color="warning"
+                  placeholder="Input Estimate Pomodoro"
+                  inputProps={{ style: { fontSize: 10, color: 'white' } }}
+                  InputLabelProps={{ style: { color: 'gray' } }}
+                  onChange={(e) => handleOnChange(e, 'pomodoroCount')}
+                />
+                <Rating
+                  name="pomodoro-count"
+                  value={pomodoroCount}
+                  max={10}
+                  precision={0.5}
+                  icon={<BoltIcon fontSize="inherit" />}
+                  emptyIcon={<BatteryChargingFullIcon fontSize="inherit" />}
+                  onChange={(e, newValue) => {
+                    if (newValue === null) return;
+                    setCount(newValue);
+                  }}
+                />
               </Grid>
             </Grid>
           </form>
