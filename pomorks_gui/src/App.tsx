@@ -2,7 +2,7 @@ import React from 'react';
 import './App.css';
 import { invoke } from '@tauri-apps/api/tauri';
 import { PomodoroTimer } from './Timer';
-import { Todo } from './todo';
+import { TodoInterface, Todo } from './todo';
 import { Grid } from '@mui/material';
 
 function App() {
@@ -12,15 +12,17 @@ function App() {
   //})
   //}
 
+  const [targetTodo, setTargetTodo] = React.useState<Todo>();
+
   return (
     <div className="App">
       <header className="App-header">
         <Grid container>
           <Grid item xs={4}>
-            <PomodoroTimer />
+            <PomodoroTimer targetTodo={targetTodo} />
           </Grid>
           <Grid item xs={8}>
-            <Todo />
+            <TodoInterface />
           </Grid>
         </Grid>
       </header>

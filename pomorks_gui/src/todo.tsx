@@ -9,7 +9,7 @@ import BoltIcon from '@mui/icons-material/Bolt';
 import Box from '@mui/material/Box';
 import { DataGrid, GridSelectionModel, GridColDef } from '@mui/x-data-grid';
 
-type Todo = {
+export type Todo = {
   title: string;
   tag: string;
   project: string;
@@ -42,7 +42,7 @@ const columns: GridColDef[] = [
   },
 ];
 
-export function Todo() {
+export function TodoInterface() {
   const [todo, setValues] = useState({
     title: '',
     tag: '',

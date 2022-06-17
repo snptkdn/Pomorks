@@ -1,4 +1,5 @@
 import React from 'react';
+import { Todo } from './todo';
 import { useTimer } from 'use-timer';
 import { PomodoroState } from './pomodoroStatus';
 import { sendNotification } from '@tauri-apps/api/notification';
@@ -11,7 +12,7 @@ import StopCircleIcon from '@mui/icons-material/StopCircle';
 
 let state = new PomodoroState('BREAK', 0);
 
-export function PomodoroTimer() {
+export function PomodoroTimer({ targetTodo }: { targetTodo: Todo | undefined }) {
   const { time, start, pause, reset, status, advanceTime } = useTimer({
     initialTime: getTimerSeconds('BREAK'),
     timerType: 'DECREMENTAL',
