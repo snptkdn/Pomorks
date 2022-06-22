@@ -12,7 +12,7 @@ use pomorks_data_manage::todo::TodoList;
 use std::{
     error::Error,
     io::stdout,
-    sync::mpsc,
+    sync::mpsc::{self, Receiver, Sender},
     thread,
     time::{Duration, Instant},
 };
@@ -32,7 +32,7 @@ struct Cli {
     enhanced_graphics: bool,
 }
 
-pub fn launch_tui(todo_list: &mut TodoList) -> Result<()> {
+pub fn launch_tui(todo_list: &mut TodoList) -> Result<Option<TodoList>> {
     let cli: Cli = Cli {
         tick_rate: 1000,
         enhanced_graphics: true,
@@ -65,9 +65,7 @@ pub fn launch_tui(todo_list: &mut TodoList) -> Result<()> {
             }
             if last_tick.elapsed() >= tick_rate {
                 match tx.send(Event::Tick) {
-                    Err(e) => {
-                        panic!("send error:{}", e);
-                    }
+                    Err(e) => break,
                     _ => {}
                 }
                 last_tick = Instant::now();
@@ -100,7 +98,7 @@ pub fn launch_tui(todo_list: &mut TodoList) -> Result<()> {
                             DisableMouseCapture
                         )?;
                         terminal.show_cursor()?;
-                        return Ok(());
+                        return Ok(None);
                     }
                     _ => {}
                 },
@@ -124,5 +122,5 @@ pub fn launch_tui(todo_list: &mut TodoList) -> Result<()> {
         }
     }
 
-    Ok(())
+    Ok(None)
 }

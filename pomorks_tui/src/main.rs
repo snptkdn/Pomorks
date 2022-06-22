@@ -17,7 +17,14 @@ fn main() -> Result<()> {
 
     println!("{:?}", todo_list);
 
-    tui::launch_tui(&mut todo_list)?;
+    loop {
+        match tui::launch_tui(&mut todo_list)? {
+            Some(todo_list_updated) => {
+                todo_list = todo_list_updated;
+            }
+            None => break,
+        }
+    }
 
     Ok(())
 }
