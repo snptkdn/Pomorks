@@ -1,6 +1,7 @@
-use crate::app::App;
+use crate::app::{App, State, ONE_MINUTE};
 use pomorks_data_manage::todo::TodoList;
 use std::fs::{read, read_to_string};
+use std::ops::Div;
 use tui::{
     backend::Backend,
     layout::{Alignment, Constraint, Direction, Layout, Rect},
@@ -81,7 +82,7 @@ where
         .items
         .iter()
         // format display
-        .map(|i| ListItem::new(vec![Spans::from(Span::raw(format!("{:?}", i)))]))
+        .map(|i| ListItem::new(vec![Spans::from(Span::raw(format!("{}", i.title)))]))
         .collect();
 
     let todos = List::new(todos)
@@ -95,56 +96,63 @@ fn draw_selected_task_detail<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
-    let task_detail = vec![
-        Spans::from(vec![Span::styled(
-            format!("title: {}", "Task  "),
-            Style::default()
-                .add_modifier(Modifier::BOLD)
-                .fg(Color::LightRed),
-        )]),
-        Spans::from(vec![Span::styled(
-            format!("tag: #{}", "tags  "),
-            Style::default()
-                .add_modifier(Modifier::BOLD)
-                .fg(Color::LightBlue),
-        )]),
-        Spans::from(vec![Span::styled(
-            format!("project: @{}", "project  "),
-            Style::default()
-                .add_modifier(Modifier::BOLD)
-                .fg(Color::LightGreen),
-        )]),
-        Spans::from(vec![Span::styled(
-            format!("Pomodoro: {}", "■■□"),
-            Style::default()
-                .add_modifier(Modifier::BOLD)
-                .fg(Color::Gray),
-        )]),
-        Spans::from(vec![Span::raw("")]),
-        Spans::from(vec![Span::styled(
-            "Detail:",
-            Style::default()
-                .add_modifier(Modifier::BOLD)
-                .fg(Color::Gray),
-        )]),
-        Spans::from(vec![Span::styled(
-            format!(
-                "{}",
-                r"
-                Test, testtest
-                Test, testtest
-                Test, testtest
-                Test, testtest
-                Test, testtest
-                Test, testtest
-                Test, testtest
-            "
-            ),
-            Style::default()
-                .add_modifier(Modifier::BOLD)
-                .fg(Color::Gray),
-        )]),
-    ];
+    let selected_index = app.todos.state.selected();
+    let task_detail = match selected_index {
+        Some(ind) => {
+            vec![
+                Spans::from(vec![Span::styled(
+                    format!("title: {}", app.todos.items[ind].title),
+                    Style::default()
+                        .add_modifier(Modifier::BOLD)
+                        .fg(Color::LightRed),
+                )]),
+                Spans::from(vec![Span::styled(
+                    format!("tag: #{}", app.todos.items[ind].tag),
+                    Style::default()
+                        .add_modifier(Modifier::BOLD)
+                        .fg(Color::LightBlue),
+                )]),
+                Spans::from(vec![Span::styled(
+                    format!("project: @{}", app.todos.items[ind].project),
+                    Style::default()
+                        .add_modifier(Modifier::BOLD)
+                        .fg(Color::LightGreen),
+                )]),
+                Spans::from(vec![Span::styled(
+                    format!(
+                        "Pomodoro: {}",
+                        if app.todos.items[ind].executed_count < app.todos.items[ind].estimate_count
+                        {
+                            "■".repeat(app.todos.items[ind].executed_count)
+                                + &"□".repeat(
+                                    app.todos.items[ind].estimate_count
+                                        - app.todos.items[ind].executed_count,
+                                )
+                        } else {
+                            "■".repeat(app.todos.items[ind].executed_count)
+                        }
+                    ),
+                    Style::default()
+                        .add_modifier(Modifier::BOLD)
+                        .fg(Color::Gray),
+                )]),
+                Spans::from(vec![Span::raw("")]),
+                Spans::from(vec![Span::styled(
+                    "Detail:",
+                    Style::default()
+                        .add_modifier(Modifier::BOLD)
+                        .fg(Color::Gray),
+                )]),
+                Spans::from(vec![Span::styled(
+                    format!("{}", app.todos.items[ind].detail),
+                    Style::default()
+                        .add_modifier(Modifier::BOLD)
+                        .fg(Color::Gray),
+                )]),
+            ]
+        }
+        None => vec![Spans::from(vec![Span::raw("")])],
+    };
 
     let block = Block::default().borders(Borders::ALL);
     let parahraph = Paragraph::new(task_detail)
@@ -179,18 +187,23 @@ where
         .margin(2)
         .split(area);
 
+    let remaind_time = app.limit_time - app.time;
+
     let timer = Spans::from(vec![Span::styled(
-        "25:00",
+        format!(
+            "{}:{:>02}",
+            remaind_time.div(ONE_MINUTE),
+            remaind_time % ONE_MINUTE
+        ),
         Style::default()
             .add_modifier(Modifier::BOLD)
             .fg(Color::White),
     )]);
 
-    let time = app.progress * 1000.0;
-    let time = time as u16;
+    let percentage = (app.time) as u16 * 100 / (app.limit_time as u16);
     let gauge = Gauge::default()
         .gauge_style(Style::default().fg(Color::Red))
-        .percent(time);
+        .percent(percentage);
     f.render_widget(gauge, chunks[0]);
 
     let timer_paragraph = Paragraph::new(timer)
@@ -203,43 +216,60 @@ fn draw_task_status<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
-    let task = vec![
-        Spans::from(vec![
-            Span::styled(
-                format!("title: {}", "Task  "),
-                Style::default()
-                    .add_modifier(Modifier::BOLD)
-                    .fg(Color::LightRed),
-            ),
-            Span::styled(
-                format!("tag: #{}", "tags  "),
-                Style::default()
-                    .add_modifier(Modifier::BOLD)
-                    .fg(Color::LightBlue),
-            ),
-            Span::styled(
-                format!("project: {}", "project  "),
-                Style::default()
-                    .add_modifier(Modifier::BOLD)
-                    .fg(Color::LightGreen),
-            ),
-        ]),
-        Spans::from(vec![Span::styled(
-            format!("Pomodoro: {}", "■■□"),
+    let task_focus = app.todo_focus.clone();
+    let status = match task_focus {
+        Some(task) => {
+            vec![
+                Spans::from(vec![
+                    Span::styled(
+                        format!("title: {}", task.title),
+                        Style::default()
+                            .add_modifier(Modifier::BOLD)
+                            .fg(Color::LightRed),
+                    ),
+                    Span::styled(
+                        format!("tag: #{}", task.tag),
+                        Style::default()
+                            .add_modifier(Modifier::BOLD)
+                            .fg(Color::LightBlue),
+                    ),
+                    Span::styled(
+                        format!("project: {}", task.project),
+                        Style::default()
+                            .add_modifier(Modifier::BOLD)
+                            .fg(Color::LightGreen),
+                    ),
+                ]),
+                Spans::from(vec![Span::styled(
+                    format!(
+                        "Pomodoro: {}",
+                        if task.executed_count < task.estimate_count {
+                            "■".repeat(task.executed_count)
+                                + &"□".repeat(task.estimate_count - task.executed_count)
+                        } else {
+                            "■".repeat(task.executed_count)
+                        }
+                    ),
+                    Style::default().add_modifier(Modifier::BOLD),
+                )]),
+                Spans::from(vec![Span::styled(
+                    format!("Process: {}", State::get_state_name(&app.state)),
+                    Style::default()
+                        .add_modifier(Modifier::BOLD)
+                        .fg(Color::Gray),
+                )]),
+            ]
+        }
+        None => vec![Spans::from(vec![Span::styled(
+            format!("Process: {}", State::get_state_name(&app.state)),
             Style::default()
                 .add_modifier(Modifier::BOLD)
                 .fg(Color::Gray),
-        )]),
-        Spans::from(vec![Span::styled(
-            format!("Process: {}", "WORK_1"),
-            Style::default()
-                .add_modifier(Modifier::BOLD)
-                .fg(Color::Gray),
-        )]),
-    ];
+        )])],
+    };
 
     let block = Block::default().borders(Borders::ALL);
-    let task_paragraph = Paragraph::new(task)
+    let task_paragraph = Paragraph::new(status)
         .alignment(Alignment::Center)
         .block(block)
         .wrap(Wrap { trim: true });
