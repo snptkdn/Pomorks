@@ -91,7 +91,7 @@ pub fn launch_tui(todo_list: &mut TodoList) -> Result<()> {
                     KeyCode::Up => app.on_up(),
                     KeyCode::Right => app.on_right(),
                     KeyCode::Down => app.on_down(),
-                    KeyCode::Enter => app.on_enter_dir(),
+                    KeyCode::Enter => app.on_enter(),
                     KeyCode::Esc => {
                         disable_raw_mode()?;
                         execute!(

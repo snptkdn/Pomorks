@@ -49,6 +49,7 @@ pub struct App<'a> {
     pub state: State,
     pub enhanced_graphics: bool,
     pub todos: StatefulList<TodoItem>,
+    pub todo_focus: Option<TodoItem>,
 }
 
 impl<'a> App<'a> {
@@ -60,10 +61,11 @@ impl<'a> App<'a> {
             progress: 0.0,
             time: 0,
             limit_time: State::get_limit_time(&State::WORK(1)),
-            on_progress: true,
+            on_progress: false,
             state: State::WORK(1),
             todos: StatefulList::with_items(todo_list.get_vec_of_todo()),
             enhanced_graphics,
+            todo_focus: None,
         }
     }
 
@@ -83,10 +85,12 @@ impl<'a> App<'a> {
         //self.tabs.previous();
     }
 
-    pub fn on_enter_dir(&mut self) {
-        //match self.folders[self.folders_index].state.selected() {
-        //_ => {}
-        //}
+    pub fn on_enter(&mut self) {
+        self.todo_focus = match self.todos.state.selected() {
+            Some(ind) => Some(self.todos.items[ind].clone()),
+            None => None,
+        };
+        self.on_progress = true;
     }
 
     pub fn on_focus_left_pain(&mut self) {}
@@ -108,7 +112,7 @@ impl<'a> App<'a> {
                 self.on_up();
             }
             'c' => {
-                self.on_enter_dir();
+                self.on_enter();
             }
             'l' => {
                 self.on_focus_right_pain();

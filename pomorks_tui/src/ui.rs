@@ -216,43 +216,60 @@ fn draw_task_status<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
-    let task = vec![
-        Spans::from(vec![
-            Span::styled(
-                format!("title: {}", "Task  "),
-                Style::default()
-                    .add_modifier(Modifier::BOLD)
-                    .fg(Color::LightRed),
-            ),
-            Span::styled(
-                format!("tag: #{}", "tags  "),
-                Style::default()
-                    .add_modifier(Modifier::BOLD)
-                    .fg(Color::LightBlue),
-            ),
-            Span::styled(
-                format!("project: {}", "project  "),
-                Style::default()
-                    .add_modifier(Modifier::BOLD)
-                    .fg(Color::LightGreen),
-            ),
-        ]),
-        Spans::from(vec![Span::styled(
-            format!("Pomodoro: {}", "■■□"),
-            Style::default()
-                .add_modifier(Modifier::BOLD)
-                .fg(Color::Gray),
-        )]),
-        Spans::from(vec![Span::styled(
+    let task_focus = app.todo_focus.clone();
+    let status = match task_focus {
+        Some(task) => {
+            vec![
+                Spans::from(vec![
+                    Span::styled(
+                        format!("title: {}", task.title),
+                        Style::default()
+                            .add_modifier(Modifier::BOLD)
+                            .fg(Color::LightRed),
+                    ),
+                    Span::styled(
+                        format!("tag: #{}", task.tag),
+                        Style::default()
+                            .add_modifier(Modifier::BOLD)
+                            .fg(Color::LightBlue),
+                    ),
+                    Span::styled(
+                        format!("project: {}", task.project),
+                        Style::default()
+                            .add_modifier(Modifier::BOLD)
+                            .fg(Color::LightGreen),
+                    ),
+                ]),
+                Spans::from(vec![Span::styled(
+                    format!(
+                        "Pomodoro: {}",
+                        if task.executed_count < task.estimate_count {
+                            "■".repeat(task.executed_count)
+                                + &"□".repeat(task.estimate_count - task.executed_count)
+                        } else {
+                            "■".repeat(task.executed_count)
+                        }
+                    ),
+                    Style::default().add_modifier(Modifier::BOLD),
+                )]),
+                Spans::from(vec![Span::styled(
+                    format!("Process: {}", State::get_state_name(&app.state)),
+                    Style::default()
+                        .add_modifier(Modifier::BOLD)
+                        .fg(Color::Gray),
+                )]),
+            ]
+        }
+        None => vec![Spans::from(vec![Span::styled(
             format!("Process: {}", State::get_state_name(&app.state)),
             Style::default()
                 .add_modifier(Modifier::BOLD)
                 .fg(Color::Gray),
-        )]),
-    ];
+        )])],
+    };
 
     let block = Block::default().borders(Borders::ALL);
-    let task_paragraph = Paragraph::new(task)
+    let task_paragraph = Paragraph::new(status)
         .alignment(Alignment::Center)
         .block(block)
         .wrap(Wrap { trim: true });
