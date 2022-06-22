@@ -30,6 +30,13 @@ impl TodoList {
             None => Err(anyhow!("selected todo is not exist.")),
         }
     }
+
+    pub fn get_vec_of_todo(&self) -> Vec<TodoItem> {
+        self.todo_list
+            .iter()
+            .map(|(_, todo)| todo.clone())
+            .collect()
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
