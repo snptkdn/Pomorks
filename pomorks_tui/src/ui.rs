@@ -95,56 +95,63 @@ fn draw_selected_task_detail<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
-    let task_detail = vec![
-        Spans::from(vec![Span::styled(
-            format!("title: {}", "Task  "),
-            Style::default()
-                .add_modifier(Modifier::BOLD)
-                .fg(Color::LightRed),
-        )]),
-        Spans::from(vec![Span::styled(
-            format!("tag: #{}", "tags  "),
-            Style::default()
-                .add_modifier(Modifier::BOLD)
-                .fg(Color::LightBlue),
-        )]),
-        Spans::from(vec![Span::styled(
-            format!("project: @{}", "project  "),
-            Style::default()
-                .add_modifier(Modifier::BOLD)
-                .fg(Color::LightGreen),
-        )]),
-        Spans::from(vec![Span::styled(
-            format!("Pomodoro: {}", "■■□"),
-            Style::default()
-                .add_modifier(Modifier::BOLD)
-                .fg(Color::Gray),
-        )]),
-        Spans::from(vec![Span::raw("")]),
-        Spans::from(vec![Span::styled(
-            "Detail:",
-            Style::default()
-                .add_modifier(Modifier::BOLD)
-                .fg(Color::Gray),
-        )]),
-        Spans::from(vec![Span::styled(
-            format!(
-                "{}",
-                r"
-                Test, testtest
-                Test, testtest
-                Test, testtest
-                Test, testtest
-                Test, testtest
-                Test, testtest
-                Test, testtest
-            "
-            ),
-            Style::default()
-                .add_modifier(Modifier::BOLD)
-                .fg(Color::Gray),
-        )]),
-    ];
+    let selected_index = app.todos.state.selected();
+    let task_detail = match selected_index {
+        Some(ind) => {
+            vec![
+                Spans::from(vec![Span::styled(
+                    format!("title: {}", app.todos.items[ind].title),
+                    Style::default()
+                        .add_modifier(Modifier::BOLD)
+                        .fg(Color::LightRed),
+                )]),
+                Spans::from(vec![Span::styled(
+                    format!("tag: #{}", app.todos.items[ind].tag),
+                    Style::default()
+                        .add_modifier(Modifier::BOLD)
+                        .fg(Color::LightBlue),
+                )]),
+                Spans::from(vec![Span::styled(
+                    format!("project: @{}", app.todos.items[ind].project),
+                    Style::default()
+                        .add_modifier(Modifier::BOLD)
+                        .fg(Color::LightGreen),
+                )]),
+                Spans::from(vec![Span::styled(
+                    format!(
+                        "Pomodoro: {}",
+                        if app.todos.items[ind].executed_count < app.todos.items[ind].estimate_count
+                        {
+                            "■".repeat(app.todos.items[ind].executed_count)
+                                + &"□".repeat(
+                                    app.todos.items[ind].estimate_count
+                                        - app.todos.items[ind].executed_count,
+                                )
+                        } else {
+                            "■".repeat(app.todos.items[ind].executed_count)
+                        }
+                    ),
+                    Style::default()
+                        .add_modifier(Modifier::BOLD)
+                        .fg(Color::Gray),
+                )]),
+                Spans::from(vec![Span::raw("")]),
+                Spans::from(vec![Span::styled(
+                    "Detail:",
+                    Style::default()
+                        .add_modifier(Modifier::BOLD)
+                        .fg(Color::Gray),
+                )]),
+                Spans::from(vec![Span::styled(
+                    format!("{}", app.todos.items[ind].detail),
+                    Style::default()
+                        .add_modifier(Modifier::BOLD)
+                        .fg(Color::Gray),
+                )]),
+            ]
+        }
+        None => vec![Spans::from(vec![Span::raw("")])],
+    };
 
     let block = Block::default().borders(Borders::ALL);
     let parahraph = Paragraph::new(task_detail)

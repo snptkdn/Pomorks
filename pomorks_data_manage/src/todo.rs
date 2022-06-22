@@ -43,12 +43,13 @@ impl TodoList {
 #[serde(rename_all = "PascalCase")]
 pub struct TodoItem {
     id: String,
-    title: String,
-    tag: String,
-    project: String,
-    estimate_count: usize,
-    executed_count: usize,
-    finished: bool,
+    pub title: String,
+    pub tag: String,
+    pub project: String,
+    pub estimate_count: usize,
+    pub executed_count: usize,
+    pub finished: bool,
+    pub detail: String,
 }
 
 impl TodoItem {
@@ -58,6 +59,7 @@ impl TodoItem {
         tag: String,
         project: String,
         estimate_count: usize,
+        detail: String,
     ) -> Self {
         TodoItem {
             id,
@@ -67,6 +69,7 @@ impl TodoItem {
             estimate_count,
             executed_count: 0,
             finished: false,
+            detail,
         }
     }
 }
