@@ -1,5 +1,5 @@
 use crate::data_manage_trait::DataManage;
-use crate::todo::*;
+use crate::todo::{self, *};
 use anyhow::Result;
 use std::fs::File;
 use std::io::{self, BufRead, BufReader, Read, Write};
@@ -18,7 +18,10 @@ impl DataManage for DataManageJson {
         Ok(())
     }
 
-    fn read_all_todo() -> Result<Option<Vec<TodoItem>>> {
-        todo!();
+    fn read_all_todo() -> Result<Option<todo::TodoList>> {
+        let todo_list_json = File::open("task.json")?;
+        let todo_list: todo::TodoList = serde_json::from_reader(todo_list_json)?;
+
+        Ok(Some(todo_list))
     }
 }
