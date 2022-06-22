@@ -2,7 +2,7 @@ use crate::app::App;
 use std::fs::{read, read_to_string};
 use tui::{
     backend::Backend,
-    layout::{Constraint, Direction, Layout, Rect},
+    layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Span, Spans},
     widgets::{Block, Borders, List, ListItem, Paragraph, Tabs, Wrap},
@@ -11,9 +11,38 @@ use tui::{
 
 pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     let chunks = Layout::default()
-        .constraints([Constraint::Ratio(4, 5), Constraint::Ratio(1, 5)].as_ref())
+        .constraints([Constraint::Length(3), Constraint::Min(0)].as_ref())
         .split(f.size());
+    draw_title(f, app, chunks[0]);
     draw_first_tab(f, app, chunks[1]);
+}
+
+// タイトルの描画
+fn draw_title<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect)
+where
+    B: Backend,
+{
+    let version = env!("CARGO_PKG_VERSION");
+    let title = Spans::from(vec![
+        Span::styled(
+            "**** Pomorks Tui ****",
+            Style::default()
+                .add_modifier(Modifier::ITALIC)
+                .fg(Color::Gray),
+        ),
+        Span::raw("  "),
+        Span::styled(
+            format!("- version - {}", version),
+            Style::default().fg(Color::DarkGray),
+        ),
+    ]);
+    let block = Block::default().borders(Borders::ALL);
+
+    let paragraph = Paragraph::new(title)
+        .alignment(Alignment::Center)
+        .block(block)
+        .wrap(Wrap { trim: true });
+    f.render_widget(paragraph, area);
 }
 
 fn draw_first_tab<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
