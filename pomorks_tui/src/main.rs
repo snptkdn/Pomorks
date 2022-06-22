@@ -9,6 +9,7 @@ use std::task;
 use pomorks_data_manage::data_manage_json::DataManageJson;
 use pomorks_data_manage::data_manage_trait::DataManage;
 use pomorks_data_manage::todo::{TodoItem, TodoList};
+
 fn main() -> Result<()> {
     let mut todo_list = match DataManageJson::read_all_todo()? {
         Some(todo_list) => todo_list,
@@ -19,9 +20,14 @@ fn main() -> Result<()> {
 
     loop {
         match tui::launch_tui(&mut todo_list)? {
-            Some(todo_list_updated) => {
-                todo_list = todo_list_updated;
-            }
+            Some(info) => match info {
+                tui::UpdateInfo::CountIncrement(todo) => {
+                    todo_list.insert_todo(TodoItem {
+                        executed_count: todo.executed_count + 1,
+                        ..todo
+                    })?;
+                }
+            },
             None => break,
         }
     }

@@ -1,8 +1,9 @@
 use crate::statefull_list::StatefulList;
+use crate::tui::UpdateInfo;
 use anyhow::Result;
 use pomorks_data_manage::todo::{TodoItem, TodoList};
 
-pub const ONE_MINUTE: usize = 60;
+pub const ONE_MINUTE: usize = 1;
 type WorkCount = usize;
 
 pub enum State {
@@ -124,7 +125,7 @@ impl<'a> App<'a> {
         }
     }
 
-    pub fn on_tick(&mut self) {
+    pub fn on_tick(&mut self) -> Option<UpdateInfo> {
         // Update progress
         self.progress += 0.001;
         if self.progress > 1.0 {
@@ -138,6 +139,13 @@ impl<'a> App<'a> {
             self.on_progress = false;
             self.state = State::get_next_state(&self.state);
             self.limit_time = State::get_limit_time(&self.state);
+
+            return match &self.todo_focus {
+                Some(todo) => Some(UpdateInfo::CountIncrement(&todo)),
+                None => None,
+            };
         }
+
+        None
     }
 }

@@ -8,6 +8,7 @@ use crossterm::{
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
+use pomorks_data_manage::todo::TodoItem;
 use pomorks_data_manage::todo::TodoList;
 use std::{
     error::Error,
@@ -23,6 +24,10 @@ enum Event<I> {
     Tick,
 }
 
+pub enum UpdateInfo {
+    CountIncrement(TodoItem),
+}
+
 /// Crossterm demo
 #[derive(Debug)]
 struct Cli {
@@ -32,7 +37,7 @@ struct Cli {
     enhanced_graphics: bool,
 }
 
-pub fn launch_tui(todo_list: &mut TodoList) -> Result<Option<TodoList>> {
+pub fn launch_tui(todo_list: &mut TodoList) -> Result<Option<UpdateInfo>> {
     let cli: Cli = Cli {
         tick_rate: 1000,
         enhanced_graphics: true,
@@ -107,7 +112,9 @@ pub fn launch_tui(todo_list: &mut TodoList) -> Result<Option<TodoList>> {
                 },
             },
             Event::Tick => {
-                app.on_tick();
+                if let Some(info) = app.on_tick() {
+                    return Ok(Some(info));
+                }
             }
         }
         if app.should_quit {
