@@ -3,5 +3,8 @@ mod app;
 mod statefull_list;
 mod ui;
 fn main() {
-    tui::launch_tui();
+    match tui::launch_tui() {
+        Ok(()) => (),
+        Err(e) => println!("{}",e)
+    }
 }

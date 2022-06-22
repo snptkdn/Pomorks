@@ -1,30 +1,3 @@
-use crate::statefull_list::StatefulList;
-use std::process::Command;
-use std::fs;
-use std::path;
-use std::error::Error;
-use std::env;
-use std::io::BufReader;
-
-pub struct Signal<S: Iterator> {
-    source: S,
-    pub points: Vec<S::Item>,
-    tick_rate: usize,
-}
-
-impl<S> Signal<S>
-where
-    S: Iterator,
-{
-    fn on_tick(&mut self) {
-        for _ in 0..self.tick_rate {
-            self.points.remove(0);
-        }
-        self.points
-            .extend(self.source.by_ref().take(self.tick_rate));
-    }
-}
-
 pub struct App<'a> {
     pub title: &'a str,
     pub should_quit: bool,
@@ -94,10 +67,6 @@ impl<'a> App<'a> {
             'h' => { self.on_focus_left_pain(); }
             _ => {}
         }
-    }
-
-    pub fn add_task(&mut self) {
-
     }
 
     pub fn on_tick(&mut self) {
