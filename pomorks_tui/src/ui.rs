@@ -1,4 +1,4 @@
-use crate::app::{App, ONE_MINUTE};
+use crate::app::{App, State, ONE_MINUTE};
 use pomorks_data_manage::todo::TodoList;
 use std::fs::{read, read_to_string};
 use std::ops::Div;
@@ -244,7 +244,7 @@ where
                 .fg(Color::Gray),
         )]),
         Spans::from(vec![Span::styled(
-            format!("Process: {}", "WORK_1"),
+            format!("Process: {}", State::get_state_name(&app.state)),
             Style::default()
                 .add_modifier(Modifier::BOLD)
                 .fg(Color::Gray),

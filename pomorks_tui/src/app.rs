@@ -1,7 +1,42 @@
 use crate::statefull_list::StatefulList;
+use anyhow::Result;
 use pomorks_data_manage::todo::{TodoItem, TodoList};
 
 pub const ONE_MINUTE: usize = 60;
+type WorkCount = usize;
+
+pub enum State {
+    WORK(WorkCount),
+    BREAK(WorkCount),
+    LUNCH(WorkCount),
+}
+
+impl State {
+    pub fn get_next_state(state_now: &Self) -> State {
+        match state_now {
+            State::WORK(work_count) if *work_count == 4 => State::LUNCH(*work_count),
+            State::WORK(work_count) => State::BREAK(*work_count),
+            State::LUNCH(_) => State::WORK(0),
+            State::BREAK(work_count) => State::WORK(*work_count + 1),
+        }
+    }
+
+    pub fn get_state_name(state: &Self) -> String {
+        match state {
+            State::WORK(work_count) => format!("WORK_{}", work_count),
+            State::BREAK(_) => format!("BREAK"),
+            State::LUNCH(_) => format!("LUNCH"),
+        }
+    }
+
+    pub fn get_limit_time(state: &Self) -> usize {
+        match state {
+            State::WORK(_) => 25 * ONE_MINUTE,
+            State::BREAK(_) => 5 * ONE_MINUTE,
+            State::LUNCH(_) => 30 * ONE_MINUTE,
+        }
+    }
+}
 
 pub struct App<'a> {
     pub title: &'a str,
@@ -11,6 +46,7 @@ pub struct App<'a> {
     pub time: usize,
     pub limit_time: usize,
     pub on_progress: bool,
+    pub state: State,
     pub enhanced_graphics: bool,
     pub todos: StatefulList<TodoItem>,
 }
@@ -23,8 +59,9 @@ impl<'a> App<'a> {
             show_chart: false,
             progress: 0.0,
             time: 0,
-            limit_time: 25 * ONE_MINUTE,
+            limit_time: State::get_limit_time(&State::WORK(1)),
             on_progress: true,
+            state: State::WORK(1),
             todos: StatefulList::with_items(todo_list.get_vec_of_todo()),
             enhanced_graphics,
         }
@@ -95,6 +132,8 @@ impl<'a> App<'a> {
         if self.time >= self.limit_time {
             self.time = 0;
             self.on_progress = false;
+            self.state = State::get_next_state(&self.state);
+            self.limit_time = State::get_limit_time(&self.state);
         }
     }
 }
