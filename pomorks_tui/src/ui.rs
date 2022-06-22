@@ -1,4 +1,5 @@
 use crate::app::App;
+use pomorks_data_manage::todo::TodoList;
 use std::fs::{read, read_to_string};
 use tui::{
     backend::Backend,
@@ -9,7 +10,7 @@ use tui::{
     Frame,
 };
 
-pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App) {
+pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App, todo_list: &TodoList) {
     let chunks = Layout::default()
         .constraints(
             [
@@ -75,16 +76,19 @@ where
         .direction(Direction::Horizontal)
         .split(area);
 
-    let tasks = vec![ListItem::new(vec![Spans::from(Span::raw(
-        "Task1 #test @project",
-    ))])];
+    let todos: Vec<ListItem> = app
+        .todos
+        .items
+        .iter()
+        // format display
+        .map(|i| ListItem::new(vec![Spans::from(Span::raw(format!("{:?}", i)))]))
+        .collect();
 
-    let tasks = List::new(tasks)
-        .block(Block::default().borders(Borders::ALL).title("Task"))
-        //.highlight_style(Style::default().add_modifier(Modifier::BOLD))
+    let todos = List::new(todos)
+        .block(Block::default().borders(Borders::ALL).title("Todo"))
         .highlight_style(Style::default().fg(Color::Red))
         .highlight_symbol("> ");
-    f.render_widget(tasks, chunks[0]);
+    f.render_stateful_widget(todos, chunks[0], &mut app.todos.state);
 }
 
 fn draw_selected_task_detail<B>(f: &mut Frame<B>, app: &mut App, area: Rect)

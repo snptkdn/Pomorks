@@ -1,5 +1,6 @@
 use crate::app::App;
 use crate::ui;
+use anyhow::Result;
 use crossterm::{
     event::{
         self, DisableMouseCapture, EnableMouseCapture, Event as CEvent, KeyCode, KeyModifiers,
@@ -7,6 +8,7 @@ use crossterm::{
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
+use pomorks_data_manage::todo::TodoList;
 use std::{
     error::Error,
     io::stdout,
@@ -30,7 +32,7 @@ struct Cli {
     enhanced_graphics: bool,
 }
 
-pub fn launch_tui() -> Result<(), Box<dyn Error>> {
+pub fn launch_tui(todo_list: &mut TodoList) -> Result<()> {
     let cli: Cli = Cli {
         tick_rate: 5000,
         enhanced_graphics: true,
@@ -73,15 +75,18 @@ pub fn launch_tui() -> Result<(), Box<dyn Error>> {
         }
     });
 
-    let mut app = App::new("Crossterm Demo", cli.enhanced_graphics);
+    let mut app = App::new("Crossterm Demo", cli.enhanced_graphics, &todo_list);
 
     terminal.clear()?;
 
     loop {
-        terminal.draw(|f| ui::draw(f, &mut app))?;
+        terminal.draw(|f| ui::draw(f, &mut app, &todo_list))?;
         match rx.recv()? {
             Event::Input(event) => match event.modifiers {
                 KeyModifiers::NONE => match event.code {
+                    KeyCode::Char(c) => {
+                        app.on_key(c, terminal.get_cursor().unwrap());
+                    }
                     KeyCode::Left => app.on_left(),
                     KeyCode::Up => app.on_up(),
                     KeyCode::Right => app.on_right(),

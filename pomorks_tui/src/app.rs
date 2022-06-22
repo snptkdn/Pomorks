@@ -1,32 +1,33 @@
+use crate::statefull_list::StatefulList;
+use pomorks_data_manage::todo::{TodoItem, TodoList};
+
 pub struct App<'a> {
     pub title: &'a str,
     pub should_quit: bool,
     pub show_chart: bool,
     pub progress: f64,
     pub enhanced_graphics: bool,
-    pub folders_index: usize,
-    pub path_copied: String,
+    pub todos: StatefulList<TodoItem>,
 }
 
 impl<'a> App<'a> {
-    pub fn new(title: &'a str, enhanced_graphics: bool) -> App<'a> {
+    pub fn new(title: &'a str, enhanced_graphics: bool, todo_list: &TodoList) -> App<'a> {
         App {
             title,
             should_quit: false,
             show_chart: false,
             progress: 0.0,
+            todos: StatefulList::with_items(todo_list.get_vec_of_todo()),
             enhanced_graphics,
-            folders_index: 0,
-            path_copied: "".to_string(),
         }
     }
 
     pub fn on_up(&mut self) {
-        //self.folders[self.folders_index].previous();
+        self.todos.previous();
     }
 
     pub fn on_down(&mut self) {
-        //self.folders[self.folders_index].next();
+        self.todos.next();
     }
 
     pub fn on_right(&mut self) {
@@ -43,13 +44,9 @@ impl<'a> App<'a> {
         //}
     }
 
-    pub fn on_focus_left_pain(&mut self) {
-        self.folders_index = 0;
-    }
+    pub fn on_focus_left_pain(&mut self) {}
 
-    pub fn on_focus_right_pain(&mut self) {
-        self.folders_index = 1;
-    }
+    pub fn on_focus_right_pain(&mut self) {}
 
     pub fn on_key(&mut self, c: char, _: (u16, u16)) {
         match c {
