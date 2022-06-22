@@ -1,22 +1,19 @@
 use crate::app::App;
-use std::fs::{read_to_string, read};
+use std::fs::{read, read_to_string};
 use tui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Span, Spans},
-    widgets::{
-        Block, Borders, List, ListItem,
-        Paragraph, Tabs, Wrap,
-    },
+    widgets::{Block, Borders, List, ListItem, Paragraph, Tabs, Wrap},
     Frame,
 };
 
 pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     let chunks = Layout::default()
-        .constraints([Constraint::Length(3), Constraint::Min(0)].as_ref())
+        .constraints([Constraint::Ratio(4, 5), Constraint::Ratio(1, 5)].as_ref())
         .split(f.size());
-        draw_first_tab(f, app, chunks[1]);
+    draw_first_tab(f, app, chunks[1]);
 }
 
 fn draw_first_tab<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
@@ -24,13 +21,7 @@ where
     B: Backend,
 {
     let chunks = Layout::default()
-        .constraints(
-            [
-                Constraint::Percentage(80),
-                Constraint::Percentage(20),
-            ]
-            .as_ref(),
-        )
+        .constraints([Constraint::Percentage(80), Constraint::Percentage(20)].as_ref())
         .split(area);
     draw_charts(f, app, chunks[0]);
     draw_text(f, chunks[1]);
@@ -67,34 +58,43 @@ where
     B: Backend,
 {
     let text = vec![
-        Spans::from(vec![
-            Span::from("キー: "),
-        ]),
+        Spans::from(vec![Span::from("キー: ")]),
         Spans::from(vec![
             Span::raw("  key\""),
-            Span::styled("e", Style::default().add_modifier(Modifier::BOLD).fg(Color::Red)),
+            Span::styled(
+                "e",
+                Style::default().add_modifier(Modifier::BOLD).fg(Color::Red),
+            ),
             Span::raw("\": "),
             Span::from("システムの終了"),
         ]),
         Spans::from(vec![
             Span::raw("  key\""),
-            Span::styled("j", Style::default().add_modifier(Modifier::BOLD).fg(Color::Blue)),
+            Span::styled(
+                "j",
+                Style::default()
+                    .add_modifier(Modifier::BOLD)
+                    .fg(Color::Blue),
+            ),
             Span::raw("\": "),
             Span::from("next"),
         ]),
         Spans::from(vec![
             Span::raw("  key\""),
-            Span::styled("k", Style::default().add_modifier(Modifier::BOLD).fg(Color::Green)),
+            Span::styled(
+                "k",
+                Style::default()
+                    .add_modifier(Modifier::BOLD)
+                    .fg(Color::Green),
+            ),
             Span::raw("\": "),
             Span::from("pre"),
         ]),
-        Spans::from(
-            "One more thing is that it should display unicode characters: 10€"
-        ),
+        Spans::from("One more thing is that it should display unicode characters: 10€"),
     ];
     let version = env!("CARGO_PKG_VERSION");
     let block = Block::default().borders(Borders::ALL).title(Span::styled(
-        format!("Me'nMa {}",version),
+        format!("Me'nMa {}", version),
         Style::default()
             .fg(Color::Yellow)
             .add_modifier(Modifier::BOLD),

@@ -1,5 +1,9 @@
+use crate::app::App;
+use crate::ui;
 use crossterm::{
-    event::{self, DisableMouseCapture, EnableMouseCapture, Event as CEvent, KeyCode, KeyModifiers},
+    event::{
+        self, DisableMouseCapture, EnableMouseCapture, Event as CEvent, KeyCode, KeyModifiers,
+    },
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
@@ -11,8 +15,6 @@ use std::{
     time::{Duration, Instant},
 };
 use tui::{backend::CrosstermBackend, Terminal};
-use crate::app::{App};
-use crate::ui;
 
 enum Event<I> {
     Input(I),
@@ -29,8 +31,10 @@ struct Cli {
 }
 
 pub fn launch_tui() -> Result<(), Box<dyn Error>> {
-
-    let cli: Cli = Cli{tick_rate:5000, enhanced_graphics:true};
+    let cli: Cli = Cli {
+        tick_rate: 5000,
+        enhanced_graphics: true,
+    };
 
     enable_raw_mode()?;
 
@@ -46,28 +50,28 @@ pub fn launch_tui() -> Result<(), Box<dyn Error>> {
 
     let tick_rate = Duration::from_millis(cli.tick_rate);
     thread::spawn(move || {
-            let mut last_tick = Instant::now();
-            loop {
-                // poll for tick rate duration, if no events, sent tick event.
-                let timeout = tick_rate
-                    .checked_sub(last_tick.elapsed())
-                    .unwrap_or_else(|| Duration::from_secs(0));
-                if event::poll(timeout).unwrap() {
-                    if let CEvent::Key(key) = event::read().unwrap() {
-                        tx.send(Event::Input(key)).unwrap();
-                    }
-                }
-                if last_tick.elapsed() >= tick_rate {
-                    match tx.send(Event::Tick) {
-                        Err(e) => {
-                            panic!("send error:{}", e);
-                        },
-                        _ => {}
-                    }
-                    last_tick = Instant::now();
+        let mut last_tick = Instant::now();
+        loop {
+            // poll for tick rate duration, if no events, sent tick event.
+            let timeout = tick_rate
+                .checked_sub(last_tick.elapsed())
+                .unwrap_or_else(|| Duration::from_secs(0));
+            if event::poll(timeout).unwrap() {
+                if let CEvent::Key(key) = event::read().unwrap() {
+                    tx.send(Event::Input(key)).unwrap();
                 }
             }
-        });
+            if last_tick.elapsed() >= tick_rate {
+                match tx.send(Event::Tick) {
+                    Err(e) => {
+                        panic!("send error:{}", e);
+                    }
+                    _ => {}
+                }
+                last_tick = Instant::now();
+            }
+        }
+    });
 
     let mut app = App::new("Crossterm Demo", cli.enhanced_graphics);
 
@@ -77,31 +81,27 @@ pub fn launch_tui() -> Result<(), Box<dyn Error>> {
         terminal.draw(|f| ui::draw(f, &mut app))?;
         match rx.recv()? {
             Event::Input(event) => match event.modifiers {
-                KeyModifiers::NONE => {
-                    match event.code {
-                        KeyCode::Left => app.on_left(),
-                        KeyCode::Up => app.on_up(),
-                        KeyCode::Right => app.on_right(),
-                        KeyCode::Down => app.on_down(),
-                        KeyCode::Enter => app.on_enter_dir(),
-                        KeyCode::Esc => {
-                            disable_raw_mode()?;
-                            execute!(
-                                terminal.backend_mut(),
-                                LeaveAlternateScreen,
-                                DisableMouseCapture
-                            )?;
-                            terminal.show_cursor()?;
-                            return Ok(());
-                        }
-                        _ => {},
+                KeyModifiers::NONE => match event.code {
+                    KeyCode::Left => app.on_left(),
+                    KeyCode::Up => app.on_up(),
+                    KeyCode::Right => app.on_right(),
+                    KeyCode::Down => app.on_down(),
+                    KeyCode::Enter => app.on_enter_dir(),
+                    KeyCode::Esc => {
+                        disable_raw_mode()?;
+                        execute!(
+                            terminal.backend_mut(),
+                            LeaveAlternateScreen,
+                            DisableMouseCapture
+                        )?;
+                        terminal.show_cursor()?;
+                        return Ok(());
                     }
+                    _ => {}
                 },
-                _ => {
-                    match event {
-                        _ => {},
-                    }
-                }
+                _ => match event {
+                    _ => {}
+                },
             },
             Event::Tick => {
                 app.on_tick();

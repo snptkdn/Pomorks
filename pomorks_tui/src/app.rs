@@ -10,7 +10,6 @@ pub struct App<'a> {
 
 impl<'a> App<'a> {
     pub fn new(title: &'a str, enhanced_graphics: bool) -> App<'a> {
-
         App {
             title,
             should_quit: false,
@@ -40,7 +39,7 @@ impl<'a> App<'a> {
 
     pub fn on_enter_dir(&mut self) {
         //match self.folders[self.folders_index].state.selected() {
-            //_ => {}
+        //_ => {}
         //}
     }
 
@@ -60,11 +59,21 @@ impl<'a> App<'a> {
             't' => {
                 self.show_chart = !self.show_chart;
             }
-            'j' => { self.on_down(); }
-            'k' => { self.on_up(); }
-            'c' => { self.on_enter_dir(); }
-            'l' => { self.on_focus_right_pain(); }
-            'h' => { self.on_focus_left_pain(); }
+            'j' => {
+                self.on_down();
+            }
+            'k' => {
+                self.on_up();
+            }
+            'c' => {
+                self.on_enter_dir();
+            }
+            'l' => {
+                self.on_focus_right_pain();
+            }
+            'h' => {
+                self.on_focus_left_pain();
+            }
             _ => {}
         }
     }
