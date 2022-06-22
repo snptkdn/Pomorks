@@ -16,9 +16,9 @@ impl TodoList {
 
     pub fn add_todo(&mut self, todo: TodoItem) -> Result<()> {
         match self.todo_list.get(&todo.id) {
-            Some(x) => Err(anyhow!("id is duplicated.")),
+            Some(_) => Err(anyhow!("id is duplicated.")),
             None => {
-                self.todo_list.entry(todo.id);
+                self.todo_list.entry(todo.id.clone()).or_insert(todo);
                 return Ok(());
             }
         }
