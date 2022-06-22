@@ -5,16 +5,24 @@ use tui::{
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Span, Spans},
-    widgets::{Block, Borders, List, ListItem, Paragraph, Tabs, Wrap},
+    widgets::{Block, Borders, Gauge, List, ListItem, Paragraph, Tabs, Wrap},
     Frame,
 };
 
 pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     let chunks = Layout::default()
-        .constraints([Constraint::Length(3), Constraint::Min(0)].as_ref())
+        .constraints(
+            [
+                Constraint::Length(3),
+                Constraint::Min(0),
+                Constraint::Length(5),
+            ]
+            .as_ref(),
+        )
         .split(f.size());
     draw_title(f, app, chunks[0]);
     draw_first_tab(f, app, chunks[1]);
+    draw_status(f, app, chunks[2]);
 }
 
 // タイトルの描画
@@ -53,7 +61,6 @@ where
         .constraints([Constraint::Percentage(80), Constraint::Percentage(20)].as_ref())
         .split(area);
     draw_charts(f, app, chunks[0]);
-    draw_text(f, chunks[1]);
 }
 
 fn draw_charts<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
@@ -82,52 +89,95 @@ where
     }
 }
 
-fn draw_text<B>(f: &mut Frame<B>, area: Rect)
+fn draw_status<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
-    let text = vec![
-        Spans::from(vec![Span::from("キー: ")]),
-        Spans::from(vec![
-            Span::raw("  key\""),
-            Span::styled(
-                "e",
-                Style::default().add_modifier(Modifier::BOLD).fg(Color::Red),
-            ),
-            Span::raw("\": "),
-            Span::from("システムの終了"),
-        ]),
-        Spans::from(vec![
-            Span::raw("  key\""),
-            Span::styled(
-                "j",
-                Style::default()
-                    .add_modifier(Modifier::BOLD)
-                    .fg(Color::Blue),
-            ),
-            Span::raw("\": "),
-            Span::from("next"),
-        ]),
-        Spans::from(vec![
-            Span::raw("  key\""),
-            Span::styled(
-                "k",
-                Style::default()
-                    .add_modifier(Modifier::BOLD)
-                    .fg(Color::Green),
-            ),
-            Span::raw("\": "),
-            Span::from("pre"),
-        ]),
-        Spans::from("One more thing is that it should display unicode characters: 10€"),
-    ];
-    let version = env!("CARGO_PKG_VERSION");
-    let block = Block::default().borders(Borders::ALL).title(Span::styled(
-        format!("Me'nMa {}", version),
+    let chunks = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([Constraint::Ratio(1, 3), Constraint::Ratio(2, 3)].as_ref())
+        .split(area);
+
+    draw_timer(f, app, chunks[0]);
+    draw_task_status(f, app, chunks[1]);
+}
+
+fn draw_timer<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
+where
+    B: Backend,
+{
+    let block = Block::default().borders(Borders::ALL);
+    f.render_widget(block, area);
+
+    let chunks = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([Constraint::Ratio(9, 10), Constraint::Ratio(1, 10)].as_ref())
+        .margin(2)
+        .split(area);
+
+    let timer = Spans::from(vec![Span::styled(
+        "25:00",
         Style::default()
-            .fg(Color::Yellow)
-            .add_modifier(Modifier::BOLD),
-    ));
-    let paragraph = Paragraph::new(text).block(block).wrap(Wrap { trim: true });
-    f.render_widget(paragraph, area);
+            .add_modifier(Modifier::BOLD)
+            .fg(Color::White),
+    )]);
+
+    let time = app.progress * 1000.0;
+    let time = time as u16;
+    let gauge = Gauge::default()
+        .gauge_style(Style::default().fg(Color::Red))
+        .percent(time);
+    f.render_widget(gauge, chunks[0]);
+
+    let timer_paragraph = Paragraph::new(timer)
+        .alignment(Alignment::Center)
+        .wrap(Wrap { trim: true });
+    f.render_widget(timer_paragraph, chunks[1]);
+}
+
+fn draw_task_status<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
+where
+    B: Backend,
+{
+    let task = vec![
+        Spans::from(vec![
+            Span::styled(
+                format!("title: {}", "Task  "),
+                Style::default()
+                    .add_modifier(Modifier::BOLD)
+                    .fg(Color::LightRed),
+            ),
+            Span::styled(
+                format!("tag: #{}", "tags  "),
+                Style::default()
+                    .add_modifier(Modifier::BOLD)
+                    .fg(Color::LightBlue),
+            ),
+            Span::styled(
+                format!("project: {}", "project  "),
+                Style::default()
+                    .add_modifier(Modifier::BOLD)
+                    .fg(Color::LightGreen),
+            ),
+        ]),
+        Spans::from(vec![Span::styled(
+            format!("Pomodoro: {}", "■■□"),
+            Style::default()
+                .add_modifier(Modifier::BOLD)
+                .fg(Color::Gray),
+        )]),
+        Spans::from(vec![Span::styled(
+            format!("Process: {}", "WORK_1"),
+            Style::default()
+                .add_modifier(Modifier::BOLD)
+                .fg(Color::Gray),
+        )]),
+    ];
+
+    let block = Block::default().borders(Borders::ALL);
+    let task_paragraph = Paragraph::new(task)
+        .alignment(Alignment::Center)
+        .block(block)
+        .wrap(Wrap { trim: true });
+    f.render_widget(task_paragraph, area);
 }
