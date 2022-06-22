@@ -1,11 +1,16 @@
 use crate::statefull_list::StatefulList;
 use pomorks_data_manage::todo::{TodoItem, TodoList};
 
+pub const ONE_MINUTE: usize = 60;
+
 pub struct App<'a> {
     pub title: &'a str,
     pub should_quit: bool,
     pub show_chart: bool,
     pub progress: f64,
+    pub time: usize,
+    pub limit_time: usize,
+    pub on_progress: bool,
     pub enhanced_graphics: bool,
     pub todos: StatefulList<TodoItem>,
 }
@@ -17,6 +22,9 @@ impl<'a> App<'a> {
             should_quit: false,
             show_chart: false,
             progress: 0.0,
+            time: 0,
+            limit_time: 25 * ONE_MINUTE,
+            on_progress: true,
             todos: StatefulList::with_items(todo_list.get_vec_of_todo()),
             enhanced_graphics,
         }
@@ -80,6 +88,13 @@ impl<'a> App<'a> {
         self.progress += 0.001;
         if self.progress > 1.0 {
             self.progress = 0.0;
+        }
+        if self.on_progress {
+            self.time += 1;
+        }
+        if self.time >= self.limit_time {
+            self.time = 0;
+            self.on_progress = false;
         }
     }
 }

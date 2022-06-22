@@ -1,6 +1,7 @@
-use crate::app::App;
+use crate::app::{App, ONE_MINUTE};
 use pomorks_data_manage::todo::TodoList;
 use std::fs::{read, read_to_string};
+use std::ops::Div;
 use tui::{
     backend::Backend,
     layout::{Alignment, Constraint, Direction, Layout, Rect},
@@ -81,7 +82,7 @@ where
         .items
         .iter()
         // format display
-        .map(|i| ListItem::new(vec![Spans::from(Span::raw(format!("{:?}", i)))]))
+        .map(|i| ListItem::new(vec![Spans::from(Span::raw(format!("{}", i.title)))]))
         .collect();
 
     let todos = List::new(todos)
@@ -186,18 +187,23 @@ where
         .margin(2)
         .split(area);
 
+    let remaind_time = app.limit_time - app.time;
+
     let timer = Spans::from(vec![Span::styled(
-        "25:00",
+        format!(
+            "{}:{:>02}",
+            remaind_time.div(ONE_MINUTE),
+            remaind_time % ONE_MINUTE
+        ),
         Style::default()
             .add_modifier(Modifier::BOLD)
             .fg(Color::White),
     )]);
 
-    let time = app.progress * 1000.0;
-    let time = time as u16;
+    let percentage = (app.time) as u16 * 100 / (app.limit_time as u16);
     let gauge = Gauge::default()
         .gauge_style(Style::default().fg(Color::Red))
-        .percent(time);
+        .percent(percentage);
     f.render_widget(gauge, chunks[0]);
 
     let timer_paragraph = Paragraph::new(timer)
