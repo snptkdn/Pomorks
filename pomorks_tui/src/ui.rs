@@ -21,7 +21,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         )
         .split(f.size());
     draw_title(f, app, chunks[0]);
-    draw_first_tab(f, app, chunks[1]);
+    draw_tasks(f, app, chunks[1]);
     draw_status(f, app, chunks[2]);
 }
 
@@ -53,40 +53,100 @@ where
     f.render_widget(paragraph, area);
 }
 
-fn draw_first_tab<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
+fn draw_tasks<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
     let chunks = Layout::default()
-        .constraints([Constraint::Percentage(80), Constraint::Percentage(20)].as_ref())
-        .split(area);
-    draw_charts(f, app, chunks[0]);
-}
-
-fn draw_charts<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
-where
-    B: Backend,
-{
-    let constraints = if app.show_chart {
-        vec![Constraint::Percentage(50), Constraint::Percentage(50)]
-    } else {
-        vec![Constraint::Percentage(100)]
-    };
-    let chunks = Layout::default()
-        .constraints(constraints)
+        .constraints([Constraint::Percentage(70), Constraint::Percentage(30)].as_ref())
         .direction(Direction::Horizontal)
         .split(area);
-    {
-        let chunks = Layout::default()
-            .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
-            .direction(Direction::Horizontal)
-            .split(chunks[0]);
 
-        // Draw tasks
-        //f.render_stateful_widget(tasks, chunks[0], &mut app.folders[0].state);
+    draw_task_list(f, app, chunks[0]);
+    draw_selected_task_detail(f, app, chunks[1]);
+}
 
-        //TODO:プレビュー表示
-    }
+fn draw_task_list<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
+where
+    B: Backend,
+{
+    let chunks = Layout::default()
+        .constraints([Constraint::Percentage(100)])
+        .direction(Direction::Horizontal)
+        .split(area);
+
+    let tasks = vec![ListItem::new(vec![Spans::from(Span::raw(
+        "Task1 #test @project",
+    ))])];
+
+    let tasks = List::new(tasks)
+        .block(Block::default().borders(Borders::ALL).title("Task"))
+        //.highlight_style(Style::default().add_modifier(Modifier::BOLD))
+        .highlight_style(Style::default().fg(Color::Red))
+        .highlight_symbol("> ");
+    f.render_widget(tasks, chunks[0]);
+}
+
+fn draw_selected_task_detail<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
+where
+    B: Backend,
+{
+    let task_detail = vec![
+        Spans::from(vec![Span::styled(
+            format!("title: {}", "Task  "),
+            Style::default()
+                .add_modifier(Modifier::BOLD)
+                .fg(Color::LightRed),
+        )]),
+        Spans::from(vec![Span::styled(
+            format!("tag: #{}", "tags  "),
+            Style::default()
+                .add_modifier(Modifier::BOLD)
+                .fg(Color::LightBlue),
+        )]),
+        Spans::from(vec![Span::styled(
+            format!("project: @{}", "project  "),
+            Style::default()
+                .add_modifier(Modifier::BOLD)
+                .fg(Color::LightGreen),
+        )]),
+        Spans::from(vec![Span::styled(
+            format!("Pomodoro: {}", "■■□"),
+            Style::default()
+                .add_modifier(Modifier::BOLD)
+                .fg(Color::Gray),
+        )]),
+        Spans::from(vec![Span::raw("")]),
+        Spans::from(vec![Span::styled(
+            "Detail:",
+            Style::default()
+                .add_modifier(Modifier::BOLD)
+                .fg(Color::Gray),
+        )]),
+        Spans::from(vec![Span::styled(
+            format!(
+                "{}",
+                r"
+                Test, testtest
+                Test, testtest
+                Test, testtest
+                Test, testtest
+                Test, testtest
+                Test, testtest
+                Test, testtest
+            "
+            ),
+            Style::default()
+                .add_modifier(Modifier::BOLD)
+                .fg(Color::Gray),
+        )]),
+    ];
+
+    let block = Block::default().borders(Borders::ALL);
+    let parahraph = Paragraph::new(task_detail)
+        .block(block)
+        .wrap(Wrap { trim: true });
+    f.render_widget(parahraph, area);
 }
 
 fn draw_status<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
