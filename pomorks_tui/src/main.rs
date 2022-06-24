@@ -1,4 +1,5 @@
 mod app;
+mod notifications;
 mod statefull_list;
 mod tui;
 mod ui;
