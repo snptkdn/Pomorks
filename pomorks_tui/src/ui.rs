@@ -223,56 +223,56 @@ where
     B: Backend,
 {
     let task_focus = app.todo_focus.clone();
-    let status = match task_focus {
-        Some(task) => {
-            vec![
-                Spans::from(vec![
-                    Span::styled(
-                        format!("title: {}", task.title),
-                        Style::default()
-                            .add_modifier(Modifier::BOLD)
-                            .fg(Color::LightRed),
-                    ),
-                    Span::styled(
-                        format!("tag: #{}", task.tag),
-                        Style::default()
-                            .add_modifier(Modifier::BOLD)
-                            .fg(Color::LightBlue),
-                    ),
-                    Span::styled(
-                        format!("project: {}", task.project),
-                        Style::default()
-                            .add_modifier(Modifier::BOLD)
-                            .fg(Color::LightGreen),
-                    ),
-                ]),
-                Spans::from(vec![Span::styled(
-                    format!(
-                        "Pomodoro: {}",
-                        if task.executed_count < task.estimate_count {
-                            "■".repeat(task.executed_count)
-                                + &"□".repeat(task.estimate_count - task.executed_count)
-                        } else {
-                            "■".repeat(task.executed_count)
-                        }
-                    ),
-                    Style::default().add_modifier(Modifier::BOLD),
-                )]),
-                Spans::from(vec![Span::styled(
-                    format!("Process: {}", State::get_state_name(&app.state)),
-                    Style::default()
-                        .add_modifier(Modifier::BOLD)
-                        .fg(Color::Gray),
-                )]),
-            ]
-        }
-        None => vec![Spans::from(vec![Span::styled(
+    let (title, tag, project, estimate_count, executed_count) = match task_focus {
+        Some(task) => (
+            task.title,
+            task.tag,
+            task.project,
+            task.estimate_count,
+            task.executed_count,
+        ),
+        None => ("-".to_string(), "-".to_string(), "-".to_string(), 0, 0),
+    };
+
+    let status = vec![
+        Spans::from(vec![
+            Span::styled(
+                format!("title: {}", title),
+                Style::default()
+                    .add_modifier(Modifier::BOLD)
+                    .fg(Color::LightRed),
+            ),
+            Span::styled(
+                format!("  tag: #{}", tag),
+                Style::default()
+                    .add_modifier(Modifier::BOLD)
+                    .fg(Color::LightBlue),
+            ),
+            Span::styled(
+                format!("  project: {}", project),
+                Style::default()
+                    .add_modifier(Modifier::BOLD)
+                    .fg(Color::LightGreen),
+            ),
+        ]),
+        Spans::from(vec![Span::styled(
+            format!(
+                "Pomodoro: {}",
+                if executed_count < estimate_count {
+                    "■".repeat(executed_count) + &"□".repeat(estimate_count - executed_count)
+                } else {
+                    "■".repeat(executed_count)
+                }
+            ),
+            Style::default().add_modifier(Modifier::BOLD),
+        )]),
+        Spans::from(vec![Span::styled(
             format!("Process: {}", State::get_state_name(&app.state)),
             Style::default()
                 .add_modifier(Modifier::BOLD)
                 .fg(Color::Gray),
-        )])],
-    };
+        )]),
+    ];
 
     let block = Block::default().borders(Borders::ALL);
     let task_paragraph = Paragraph::new(status)
