@@ -225,10 +225,10 @@ where
             .fg(Color::White),
     )]);
 
-    let percentage = (app.time) as u16 * 100 / (app.limit_time as u16);
+    let percentage = (app.time as f64 / app.limit_time as f64) * 100.0;
     let gauge = Gauge::default()
         .gauge_style(Style::default().fg(Color::Red))
-        .percent(percentage);
+        .percent(percentage as u16);
     f.render_widget(gauge, chunks[0]);
 
     let timer_paragraph = Paragraph::new(timer)
