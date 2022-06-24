@@ -1,4 +1,4 @@
-use crate::app::App;
+use crate::app::{App, State};
 use crate::ui;
 use anyhow::Result;
 use crossterm::{
@@ -24,8 +24,9 @@ enum Event<I> {
     Tick,
 }
 
+type ShouldGoNextState = bool;
 pub enum UpdateInfo {
-    CountIncrement(TodoItem),
+    CountIncrement(TodoItem, ShouldGoNextState),
 }
 
 /// Crossterm demo
@@ -37,7 +38,7 @@ struct Cli {
     enhanced_graphics: bool,
 }
 
-pub fn launch_tui(todo_list: &mut TodoList) -> Result<Option<UpdateInfo>> {
+pub fn launch_tui(todo_list: &mut TodoList, state: &State) -> Result<Option<UpdateInfo>> {
     let cli: Cli = Cli {
         tick_rate: 1000,
         enhanced_graphics: true,
@@ -78,7 +79,7 @@ pub fn launch_tui(todo_list: &mut TodoList) -> Result<Option<UpdateInfo>> {
         }
     });
 
-    let mut app = App::new("Crossterm Demo", cli.enhanced_graphics, &todo_list);
+    let mut app = App::new("Crossterm Demo", cli.enhanced_graphics, &todo_list, state);
 
     terminal.clear()?;
 

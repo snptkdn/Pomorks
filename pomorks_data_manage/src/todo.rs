@@ -49,7 +49,7 @@ impl TodoList {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "PascalCase")]
 pub struct TodoItem {
-    id: String,
+    pub id: String,
     pub title: String,
     pub tag: String,
     pub project: String,
