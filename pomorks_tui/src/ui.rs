@@ -23,7 +23,11 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App, todo_list: &TodoList) {
         )
         .split(f.size());
     draw_title(f, app, chunks[0]);
-    draw_tasks(f, app, chunks[1]);
+    if app.show_add_todo {
+        draw_add_todo(f, app, area);
+    } else {
+        draw_tasks(f, app, chunks[1]);
+    }
     draw_status(f, app, chunks[2]);
 }
 
@@ -274,4 +278,45 @@ where
         .block(block)
         .wrap(Wrap { trim: true });
     f.render_widget(task_paragraph, area);
+}
+
+fn draw_add_todo<B>(f: &mut Frame<B>, app: &mut App)
+where
+    B: Backend,
+{
+    let chunks_vert = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints(
+            [
+                Constraint::Percentage(20),
+                Constraint::Min(0),
+                Constraint::Percentage(20),
+            ]
+            .as_ref(),
+        )
+        .split(f.size());
+
+    let chunks = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints(
+            [
+                Constraint::Percentage(20),
+                Constraint::Min(0),
+                Constraint::Percentage(20),
+            ]
+            .as_ref(),
+        )
+        .split(chunks_vert[1]);
+
+    let status = vec![Spans::from(vec![Span::raw("")])];
+
+    let block = Block::default()
+        .borders(Borders::ALL)
+        .title("ADD TODO")
+        .style(Style::default().bg(Color::DarkGray));
+    let task_paragraph = Paragraph::new(status)
+        .alignment(Alignment::Center)
+        .block(block)
+        .wrap(Wrap { trim: true });
+    f.render_widget(task_paragraph, chunks[1]);
 }

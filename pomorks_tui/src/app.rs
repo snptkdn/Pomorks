@@ -44,6 +44,7 @@ impl State {
 pub struct App<'a> {
     pub title: &'a str,
     pub should_quit: bool,
+    pub show_add_todo: bool,
     pub show_chart: bool,
     pub progress: f64,
     pub time: usize,
@@ -65,6 +66,7 @@ impl<'a> App<'a> {
         App {
             title,
             should_quit: false,
+            show_add_todo: false,
             show_chart: false,
             progress: 0.0,
             time: 0,
@@ -107,6 +109,9 @@ impl<'a> App<'a> {
 
     pub fn on_key(&mut self, c: char, _: (u16, u16)) {
         match c {
+            'a' => {
+                self.show_add_todo = true;
+            }
             'e' => {
                 self.should_quit = true;
             }
