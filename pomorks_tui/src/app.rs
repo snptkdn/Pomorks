@@ -113,7 +113,6 @@ impl<'a> App<'a> {
                 Some(ind) => Some(self.todos.items[ind].clone()),
                 None => None,
             };
-            self.on_progress = true;
             Ok(None)
         }
     }
@@ -156,6 +155,9 @@ impl<'a> App<'a> {
                 }
                 'h' => {
                     self.on_focus_left_pain();
+                }
+                ' ' => {
+                    self.on_progress = !self.on_progress;
                 }
                 _ => {}
             }
