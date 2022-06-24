@@ -55,7 +55,7 @@ pub struct App<'a> {
     pub todos: StatefulList<TodoItem>,
     pub todo_focus: Option<TodoItem>,
     pub new_todo_string: String,
-    pub status: &'a String,
+    pub status: String,
 }
 
 impl<'a> App<'a> {
@@ -64,7 +64,7 @@ impl<'a> App<'a> {
         enhanced_graphics: bool,
         todo_list: &TodoList,
         state: &'a State,
-        status: &'a String,
+        status: String,
     ) -> App<'a> {
         App {
             title,
@@ -127,7 +127,17 @@ impl<'a> App<'a> {
 
     pub fn on_focus_right_pain(&mut self) {}
 
-    pub fn on_key(&mut self, c: char, _: (u16, u16)) {
+    pub fn on_change_finish_flag(&mut self) -> Result<Option<UpdateInfo>> {
+        match self.todos.state.selected() {
+            Some(ind) => Ok(Some(UpdateInfo::ChangeFinishStatus(
+                self.todos.items[ind].clone(),
+                false,
+            ))),
+            None => Ok(None),
+        }
+    }
+
+    pub fn on_key(&mut self, c: char, _: (u16, u16)) -> Result<Option<UpdateInfo>> {
         if self.show_add_todo {
             self.new_todo_string.push(c);
         } else {
@@ -156,12 +166,17 @@ impl<'a> App<'a> {
                 'h' => {
                     self.on_focus_left_pain();
                 }
+                'f' => {
+                    return self.on_change_finish_flag();
+                }
                 ' ' => {
                     self.on_progress = !self.on_progress;
                 }
                 _ => {}
             }
         }
+
+        Ok(None)
     }
 
     pub fn on_tick(&mut self) -> Option<UpdateInfo> {

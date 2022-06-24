@@ -1,5 +1,5 @@
 use crate::app::{App, State, ONE_MINUTE};
-use pomorks_data_manage::todo::TodoList;
+use pomorks_data_manage::todo::{TodoItem, TodoList};
 use std::fs::{read, read_to_string};
 use std::ops::Div;
 use tui::{
@@ -83,12 +83,31 @@ where
         .direction(Direction::Horizontal)
         .split(area);
 
+    let is_selected = {
+        |todo: &TodoItem| match &app.todo_focus {
+            Some(focus) => todo.id == focus.id,
+            None => false,
+        }
+    };
+
     let todos: Vec<ListItem> = app
         .todos
         .items
         .iter()
         // format display
-        .map(|i| ListItem::new(vec![Spans::from(Span::raw(format!("{}", i.title)))]))
+        .map(|todo| {
+            ListItem::new(vec![Spans::from(Span::styled(
+                format!("{}", todo.title),
+                match (is_selected(todo), todo.finished) {
+                    (true, true) => Style::default()
+                        .fg(Color::Green)
+                        .add_modifier(Modifier::CROSSED_OUT),
+                    (true, false) => Style::default().fg(Color::Green),
+                    (false, true) => Style::default().add_modifier(Modifier::CROSSED_OUT),
+                    (false, false) => Style::default(),
+                },
+            ))])
+        })
         .collect();
 
     let todos = List::new(todos)

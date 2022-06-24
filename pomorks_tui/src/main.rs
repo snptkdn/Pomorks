@@ -43,6 +43,15 @@ fn main() -> Result<()> {
                             state = State::get_next_state(&state);
                         }
                     }
+                    tui::UpdateInfo::ChangeFinishStatus(todo, is_go_next_state) => {
+                        todo_list.insert_todo(TodoItem {
+                            finished: !todo.finished,
+                            ..todo
+                        })?;
+                        if is_go_next_state {
+                            state = State::get_next_state(&state);
+                        }
+                    }
                 },
                 None => break,
             },

@@ -28,6 +28,7 @@ type ShouldGoNextState = bool;
 pub enum UpdateInfo {
     CountIncrement(TodoItem, ShouldGoNextState),
     AddNewTodo(TodoItem, ShouldGoNextState),
+    ChangeFinishStatus(TodoItem, ShouldGoNextState),
 }
 
 /// Crossterm demo
@@ -89,7 +90,7 @@ pub fn launch_tui(
         cli.enhanced_graphics,
         &todo_list,
         state,
-        status,
+        status.clone(),
     );
 
     terminal.clear()?;
@@ -99,9 +100,10 @@ pub fn launch_tui(
         match rx.recv()? {
             Event::Input(event) => match event.modifiers {
                 KeyModifiers::NONE => match event.code {
-                    KeyCode::Char(c) => {
-                        app.on_key(c, terminal.get_cursor().unwrap());
-                    }
+                    KeyCode::Char(c) => match app.on_key(c, terminal.get_cursor().unwrap())? {
+                        Some(info) => return Ok(Some(info)),
+                        None => (),
+                    },
                     KeyCode::Left => app.on_left(),
                     KeyCode::Up => app.on_up(),
                     KeyCode::Right => app.on_right(),
