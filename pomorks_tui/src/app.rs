@@ -4,7 +4,7 @@ use crate::tui::UpdateInfo;
 use anyhow::Result;
 use pomorks_data_manage::todo::{TodoItem, TodoList};
 
-pub const ONE_MINUTE: usize = 1;
+pub const ONE_MINUTE: usize = 60;
 type WorkCount = usize;
 
 #[derive(Clone)]
