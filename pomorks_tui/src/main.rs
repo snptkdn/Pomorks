@@ -35,6 +35,12 @@ fn main() -> Result<()> {
                         state = State::get_next_state(&state);
                     }
                 }
+                tui::UpdateInfo::AddNewTodo(todo, is_go_next_state) => {
+                    todo_list.add_todo(todo)?;
+                    if is_go_next_state {
+                        state = State::get_next_state(&state);
+                    }
+                }
             },
             None => break,
         }

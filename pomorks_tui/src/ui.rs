@@ -24,7 +24,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App, todo_list: &TodoList) {
         .split(f.size());
     draw_title(f, app, chunks[0]);
     if app.show_add_todo {
-        draw_add_todo(f, app, area);
+        draw_add_todo(f, app);
     } else {
         draw_tasks(f, app, chunks[1]);
     }
@@ -308,7 +308,7 @@ where
         )
         .split(chunks_vert[1]);
 
-    let status = vec![Spans::from(vec![Span::raw("")])];
+    let status = vec![Spans::from(vec![Span::raw(app.new_todo_string.clone())])];
 
     let block = Block::default()
         .borders(Borders::ALL)

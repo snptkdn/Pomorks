@@ -27,6 +27,7 @@ enum Event<I> {
 type ShouldGoNextState = bool;
 pub enum UpdateInfo {
     CountIncrement(TodoItem, ShouldGoNextState),
+    AddNewTodo(TodoItem, ShouldGoNextState),
 }
 
 /// Crossterm demo
@@ -95,7 +96,15 @@ pub fn launch_tui(todo_list: &mut TodoList, state: &State) -> Result<Option<Upda
                     KeyCode::Up => app.on_up(),
                     KeyCode::Right => app.on_right(),
                     KeyCode::Down => app.on_down(),
-                    KeyCode::Enter => app.on_enter(),
+                    KeyCode::Enter => {
+                        let res = app.on_enter()?;
+                        match res {
+                            Some(info) => return Ok(Some(info)),
+                            None => (),
+                        }
+                    }
+                    KeyCode::Delete => app.on_delete(),
+                    KeyCode::Backspace => app.on_delete(),
                     KeyCode::Esc => {
                         disable_raw_mode()?;
                         execute!(
