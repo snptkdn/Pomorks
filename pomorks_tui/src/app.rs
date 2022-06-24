@@ -1,3 +1,4 @@
+use crate::notifications::send_notification;
 use crate::statefull_list::StatefulList;
 use crate::tui::UpdateInfo;
 use anyhow::Result;
@@ -141,6 +142,7 @@ impl<'a> App<'a> {
             self.time += 1;
         }
         if self.time >= self.limit_time {
+            send_notification(self.state);
             self.time = 0;
             self.on_progress = false;
 
