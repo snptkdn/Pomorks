@@ -31,6 +31,13 @@ impl TodoList {
         }
     }
 
+    pub fn insert_todo(&mut self, todo: TodoItem) -> Result<()> {
+        //TODO!:リザルト処理
+        self.todo_list.insert(todo.id.clone(), todo);
+
+        Ok(())
+    }
+
     pub fn get_vec_of_todo(&self) -> Vec<TodoItem> {
         self.todo_list
             .iter()
@@ -42,7 +49,7 @@ impl TodoList {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "PascalCase")]
 pub struct TodoItem {
-    id: String,
+    pub id: String,
     pub title: String,
     pub tag: String,
     pub project: String,
@@ -59,6 +66,7 @@ impl TodoItem {
         tag: String,
         project: String,
         estimate_count: usize,
+        executed_count: usize,
         detail: String,
     ) -> Self {
         TodoItem {
@@ -67,7 +75,7 @@ impl TodoItem {
             tag,
             project,
             estimate_count,
-            executed_count: 0,
+            executed_count,
             finished: false,
             detail,
         }

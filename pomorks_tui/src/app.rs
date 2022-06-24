@@ -1,10 +1,12 @@
 use crate::statefull_list::StatefulList;
+use crate::tui::UpdateInfo;
 use anyhow::Result;
 use pomorks_data_manage::todo::{TodoItem, TodoList};
 
-pub const ONE_MINUTE: usize = 60;
+pub const ONE_MINUTE: usize = 1;
 type WorkCount = usize;
 
+#[derive(Clone)]
 pub enum State {
     WORK(WorkCount),
     BREAK(WorkCount),
@@ -46,23 +48,28 @@ pub struct App<'a> {
     pub time: usize,
     pub limit_time: usize,
     pub on_progress: bool,
-    pub state: State,
+    pub state: &'a State,
     pub enhanced_graphics: bool,
     pub todos: StatefulList<TodoItem>,
     pub todo_focus: Option<TodoItem>,
 }
 
 impl<'a> App<'a> {
-    pub fn new(title: &'a str, enhanced_graphics: bool, todo_list: &TodoList) -> App<'a> {
+    pub fn new(
+        title: &'a str,
+        enhanced_graphics: bool,
+        todo_list: &TodoList,
+        state: &'a State,
+    ) -> App<'a> {
         App {
             title,
             should_quit: false,
             show_chart: false,
             progress: 0.0,
             time: 0,
-            limit_time: State::get_limit_time(&State::WORK(1)),
+            limit_time: State::get_limit_time(state),
             on_progress: false,
-            state: State::WORK(1),
+            state,
             todos: StatefulList::with_items(todo_list.get_vec_of_todo()),
             enhanced_graphics,
             todo_focus: None,
@@ -124,7 +131,7 @@ impl<'a> App<'a> {
         }
     }
 
-    pub fn on_tick(&mut self) {
+    pub fn on_tick(&mut self) -> Option<UpdateInfo> {
         // Update progress
         self.progress += 0.001;
         if self.progress > 1.0 {
@@ -136,8 +143,14 @@ impl<'a> App<'a> {
         if self.time >= self.limit_time {
             self.time = 0;
             self.on_progress = false;
-            self.state = State::get_next_state(&self.state);
-            self.limit_time = State::get_limit_time(&self.state);
+
+            return match &self.todo_focus {
+                // TODO!:このCloneは微妙。Lifetime付けたいが、、、
+                Some(todo) => Some(UpdateInfo::CountIncrement(todo.clone(), true)),
+                None => None,
+            };
         }
+
+        None
     }
 }
