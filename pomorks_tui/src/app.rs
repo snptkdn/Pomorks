@@ -196,7 +196,7 @@ impl<'a> App<'a> {
             return match &self.todo_focus {
                 // TODO!:このCloneは微妙。Lifetime付けたいが、、、
                 Some(todo) => Some(UpdateInfo::CountIncrement(todo.clone(), true)),
-                None => None,
+                None => Some(UpdateInfo::MoveNextState()),
             };
         }
 

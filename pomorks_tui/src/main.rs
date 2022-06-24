@@ -52,6 +52,9 @@ fn main() -> Result<()> {
                             state = State::get_next_state(&state);
                         }
                     }
+                    tui::UpdateInfo::MoveNextState() => {
+                        state = State::get_next_state(&state);
+                    }
                 },
                 None => break,
             },
