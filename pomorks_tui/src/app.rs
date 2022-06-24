@@ -44,6 +44,7 @@ impl State {
 pub struct App<'a> {
     pub title: &'a str,
     pub should_quit: bool,
+    pub show_add_todo: bool,
     pub show_chart: bool,
     pub progress: f64,
     pub time: usize,
@@ -53,6 +54,7 @@ pub struct App<'a> {
     pub enhanced_graphics: bool,
     pub todos: StatefulList<TodoItem>,
     pub todo_focus: Option<TodoItem>,
+    pub new_todo_string: String,
 }
 
 impl<'a> App<'a> {
@@ -65,6 +67,7 @@ impl<'a> App<'a> {
         App {
             title,
             should_quit: false,
+            show_add_todo: false,
             show_chart: false,
             progress: 0.0,
             time: 0,
@@ -74,6 +77,7 @@ impl<'a> App<'a> {
             todos: StatefulList::with_items(todo_list.get_vec_of_todo()),
             enhanced_graphics,
             todo_focus: None,
+            new_todo_string: String::new(),
         }
     }
 
@@ -93,12 +97,28 @@ impl<'a> App<'a> {
         //self.tabs.previous();
     }
 
-    pub fn on_enter(&mut self) {
-        self.todo_focus = match self.todos.state.selected() {
-            Some(ind) => Some(self.todos.items[ind].clone()),
-            None => None,
-        };
-        self.on_progress = true;
+    pub fn on_enter(&mut self) -> Result<Option<UpdateInfo>> {
+        if self.show_add_todo {
+            self.show_add_todo = false;
+
+            Ok(Some(UpdateInfo::AddNewTodo(
+                TodoItem::from_str(&self.new_todo_string)?,
+                false,
+            )))
+        } else {
+            self.todo_focus = match self.todos.state.selected() {
+                Some(ind) => Some(self.todos.items[ind].clone()),
+                None => None,
+            };
+            self.on_progress = true;
+            Ok(None)
+        }
+    }
+
+    pub fn on_delete(&mut self) {
+        if self.show_add_todo {
+            self.new_todo_string.pop();
+        }
     }
 
     pub fn on_focus_left_pain(&mut self) {}
@@ -106,29 +126,36 @@ impl<'a> App<'a> {
     pub fn on_focus_right_pain(&mut self) {}
 
     pub fn on_key(&mut self, c: char, _: (u16, u16)) {
-        match c {
-            'e' => {
-                self.should_quit = true;
+        if self.show_add_todo {
+            self.new_todo_string.push(c);
+        } else {
+            match c {
+                'a' => {
+                    self.show_add_todo = true;
+                }
+                'e' => {
+                    self.should_quit = true;
+                }
+                't' => {
+                    self.show_chart = !self.show_chart;
+                }
+                'j' => {
+                    self.on_down();
+                }
+                'k' => {
+                    self.on_up();
+                }
+                'c' => {
+                    self.on_enter();
+                }
+                'l' => {
+                    self.on_focus_right_pain();
+                }
+                'h' => {
+                    self.on_focus_left_pain();
+                }
+                _ => {}
             }
-            't' => {
-                self.show_chart = !self.show_chart;
-            }
-            'j' => {
-                self.on_down();
-            }
-            'k' => {
-                self.on_up();
-            }
-            'c' => {
-                self.on_enter();
-            }
-            'l' => {
-                self.on_focus_right_pain();
-            }
-            'h' => {
-                self.on_focus_left_pain();
-            }
-            _ => {}
         }
     }
 
