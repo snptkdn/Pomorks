@@ -55,6 +55,7 @@ pub struct App<'a> {
     pub todos: StatefulList<TodoItem>,
     pub todo_focus: Option<TodoItem>,
     pub new_todo_string: String,
+    pub status: &'a String,
 }
 
 impl<'a> App<'a> {
@@ -63,6 +64,7 @@ impl<'a> App<'a> {
         enhanced_graphics: bool,
         todo_list: &TodoList,
         state: &'a State,
+        status: &'a String,
     ) -> App<'a> {
         App {
             title,
@@ -78,6 +80,7 @@ impl<'a> App<'a> {
             enhanced_graphics,
             todo_focus: None,
             new_todo_string: String::new(),
+            status,
         }
     }
 

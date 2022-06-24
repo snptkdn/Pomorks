@@ -22,27 +22,33 @@ fn main() -> Result<()> {
     println!("{:?}", todo_list);
 
     let mut state = app::State::WORK(1);
+    let mut status = String::new();
 
     loop {
-        match tui::launch_tui(&mut todo_list, &state)? {
-            Some(info) => match info {
-                tui::UpdateInfo::CountIncrement(todo, is_go_next_state) => {
-                    todo_list.insert_todo(TodoItem {
-                        executed_count: todo.executed_count + 1,
-                        ..todo
-                    })?;
-                    if is_go_next_state {
-                        state = State::get_next_state(&state);
+        match tui::launch_tui(&mut todo_list, &state, &status) {
+            Ok(res) => match res {
+                Some(info) => match info {
+                    tui::UpdateInfo::CountIncrement(todo, is_go_next_state) => {
+                        todo_list.insert_todo(TodoItem {
+                            executed_count: todo.executed_count + 1,
+                            ..todo
+                        })?;
+                        if is_go_next_state {
+                            state = State::get_next_state(&state);
+                        }
                     }
-                }
-                tui::UpdateInfo::AddNewTodo(todo, is_go_next_state) => {
-                    todo_list.add_todo(todo)?;
-                    if is_go_next_state {
-                        state = State::get_next_state(&state);
+                    tui::UpdateInfo::AddNewTodo(todo, is_go_next_state) => {
+                        todo_list.add_todo(todo)?;
+                        if is_go_next_state {
+                            state = State::get_next_state(&state);
+                        }
                     }
-                }
+                },
+                None => break,
             },
-            None => break,
+            Err(e) => {
+                status = e.to_string();
+            }
         }
     }
 

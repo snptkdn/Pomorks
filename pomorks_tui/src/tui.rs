@@ -39,7 +39,11 @@ struct Cli {
     enhanced_graphics: bool,
 }
 
-pub fn launch_tui(todo_list: &mut TodoList, state: &State) -> Result<Option<UpdateInfo>> {
+pub fn launch_tui(
+    todo_list: &mut TodoList,
+    state: &State,
+    status: &String,
+) -> Result<Option<UpdateInfo>> {
     let cli: Cli = Cli {
         tick_rate: 1000,
         enhanced_graphics: true,
@@ -80,7 +84,13 @@ pub fn launch_tui(todo_list: &mut TodoList, state: &State) -> Result<Option<Upda
         }
     });
 
-    let mut app = App::new("Crossterm Demo", cli.enhanced_graphics, &todo_list, state);
+    let mut app = App::new(
+        "Crossterm Demo",
+        cli.enhanced_graphics,
+        &todo_list,
+        state,
+        status,
+    );
 
     terminal.clear()?;
 

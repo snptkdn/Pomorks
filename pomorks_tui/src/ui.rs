@@ -18,6 +18,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App, todo_list: &TodoList) {
                 Constraint::Length(3),
                 Constraint::Min(0),
                 Constraint::Length(5),
+                Constraint::Length(3),
             ]
             .as_ref(),
         )
@@ -29,6 +30,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App, todo_list: &TodoList) {
         draw_tasks(f, app, chunks[1]);
     }
     draw_status(f, app, chunks[2]);
+    draw_message(f, app, chunks[3]);
 }
 
 // タイトルの描画
@@ -319,4 +321,18 @@ where
         .block(block)
         .wrap(Wrap { trim: true });
     f.render_widget(task_paragraph, chunks[1]);
+}
+
+fn draw_message<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect)
+where
+    B: Backend,
+{
+    let title = Spans::from(vec![Span::styled(
+        format!("message: {}", app.status),
+        Style::default().fg(Color::Red),
+    )]);
+    let block = Block::default().borders(Borders::ALL);
+
+    let paragraph = Paragraph::new(title).block(block).wrap(Wrap { trim: true });
+    f.render_widget(paragraph, area);
 }
