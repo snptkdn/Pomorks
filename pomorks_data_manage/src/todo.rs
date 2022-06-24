@@ -1,4 +1,5 @@
 use anyhow::{anyhow, Result};
+use rand::Rng;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -79,5 +80,32 @@ impl TodoItem {
             finished: false,
             detail,
         }
+    }
+
+    pub fn from_str(str: &String) -> Result<Self> {
+        let spl: Vec<&str> = str.split(" ").collect();
+
+        if spl.len() != 4 {
+            return Err(anyhow!("Todo String Parse Error."));
+        }
+
+        let mut id: Vec<char> = vec![];
+        for _num in 1..11 {
+            let rand_num = rand::thread_rng().gen_range(97..123);
+            if let Some(rand_num) = std::char::from_u32(rand_num) {
+                id.push(rand_num);
+            }
+        }
+
+        Ok(TodoItem {
+            id: id.iter().collect(),
+            title: spl[0].to_string(),
+            tag: spl[1].to_string(),
+            project: spl[2].to_string(),
+            estimate_count: spl[3].to_string().parse()?,
+            executed_count: 0,
+            finished: false,
+            detail: String::new(),
+        })
     }
 }
