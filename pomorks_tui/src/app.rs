@@ -2,6 +2,7 @@ use crate::notifications::send_notification;
 use crate::statefull_list::StatefulList;
 use crate::tui::UpdateInfo;
 use anyhow::Result;
+use chrono::prelude::*;
 use pomorks_data_manage::todo::{TodoItem, TodoList};
 
 #[cfg(debug_assertions)]
@@ -59,7 +60,7 @@ pub struct App<'a> {
     pub show_add_todo: bool,
     pub show_chart: bool,
     pub progress: f64,
-    pub time: usize,
+    pub start_time: Option<DateTime<Local>>,
     pub limit_time: usize,
     pub on_progress: bool,
     pub state: &'a State,
@@ -84,7 +85,7 @@ impl<'a> App<'a> {
             show_add_todo: false,
             show_chart: false,
             progress: 0.0,
-            time: 0,
+            start_time: None,
             limit_time: State::get_limit_time(state),
             on_progress: false,
             state,
@@ -198,6 +199,9 @@ impl<'a> App<'a> {
                 }
                 ' ' => {
                     self.on_progress = !self.on_progress;
+                    if self.start_time == None {
+                        self.start_time = Some(Local::now());
+                    }
                 }
                 _ => {}
             }
@@ -212,27 +216,26 @@ impl<'a> App<'a> {
         if self.progress > 1.0 {
             self.progress = 0.0;
         }
-        if self.on_progress {
-            self.time += 1;
-        }
-        if self.time >= self.limit_time {
-            send_notification(self.state);
-            self.time = 0;
-            self.on_progress = false;
 
-            return match &self.todo_focus {
-                // TODO!:このCloneは微妙。Lifetime付けたいが、、、
-                Some(todo) => {
-                    if let State::WORK(_) = self.state {
-                        Some(UpdateInfo::CountIncrement(todo.clone(), true))
-                    } else {
-                        Some(UpdateInfo::MoveNextState())
+        if let Some(start) = self.start_time {
+            if (Local::now() - start).num_seconds() as usize >= self.limit_time {
+                send_notification(self.state);
+                self.start_time = None;
+                self.on_progress = false;
+
+                return match &self.todo_focus {
+                    // TODO!:このCloneは微妙。Lifetime付けたいが、、、
+                    Some(todo) => {
+                        if let State::WORK(_) = self.state {
+                            Some(UpdateInfo::CountIncrement(todo.clone(), true))
+                        } else {
+                            Some(UpdateInfo::MoveNextState())
+                        }
                     }
-                }
-                None => Some(UpdateInfo::MoveNextState()),
-            };
+                    None => Some(UpdateInfo::MoveNextState()),
+                };
+            }
         }
-
         None
     }
 }

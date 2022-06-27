@@ -1,4 +1,5 @@
 use crate::app::{App, State, ONE_MINUTE};
+use chrono::prelude::*;
 use pomorks_data_manage::todo::{TodoItem, TodoList};
 use std::cmp::min;
 use std::fs::{read, read_to_string};
@@ -213,7 +214,13 @@ where
         .margin(2)
         .split(area);
 
-    let remaind_time = app.limit_time - app.time;
+    let progressed_time = if let Some(start) = app.start_time {
+        (Local::now() - start).num_seconds() as usize
+    } else {
+        0
+    };
+
+    let remaind_time = app.limit_time - progressed_time;
 
     let timer = Spans::from(vec![Span::styled(
         format!(
@@ -226,7 +233,7 @@ where
             .fg(Color::White),
     )]);
 
-    let percentage = (app.time as f64 / app.limit_time as f64) * 100.0;
+    let percentage = (progressed_time as f64 / app.limit_time as f64) * 100.0;
     let gauge = Gauge::default()
         .gauge_style(Style::default().fg(Color::Red))
         .percent(percentage as u16);
