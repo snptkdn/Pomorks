@@ -34,12 +34,13 @@ fn main() -> Result<()> {
                     tui::UpdateInfo::CountIncrement(todo, is_go_next_state) => {
                         todo_list.insert_todo(TodoItem {
                             executed_count: todo.executed_count + 1,
-                            ..todo
+                            ..todo.clone()
                         })?;
                         if is_go_next_state {
                             state = State::get_next_state(&state);
                         }
                         start_time = None;
+                        data_manage_json::DataManageJson::add_task_log(&todo.id, &Local::now())?;
                     }
                     tui::UpdateInfo::AddNewTodo(todo, is_go_next_state) => {
                         todo_list.add_todo(todo)?;
