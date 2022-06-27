@@ -4,6 +4,9 @@ use crate::tui::UpdateInfo;
 use anyhow::Result;
 use pomorks_data_manage::todo::{TodoItem, TodoList};
 
+#[cfg(debug_assertions)]
+pub const ONE_MINUTE: usize = 1;
+#[cfg(not(debug_assertions))]
 pub const ONE_MINUTE: usize = 60;
 type WorkCount = usize;
 
