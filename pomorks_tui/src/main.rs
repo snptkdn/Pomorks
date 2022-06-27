@@ -25,10 +25,18 @@ fn main() -> Result<()> {
     let mut state = app::State::WORK(1);
     let mut status = String::new();
     let (mut start_time, mut id) = data_manage_json::DataManageJson::read_task_dealing()?;
+    let mut todays_executed_count = 0;
 
     loop {
         // TODO:start_timeの制御が各フローに散ってるの良くないが、、、
-        match tui::launch_tui(&mut todo_list, &state, &status, &id, &start_time) {
+        match tui::launch_tui(
+            &mut todo_list,
+            &state,
+            &status,
+            &id,
+            &start_time,
+            todays_executed_count,
+        ) {
             Ok(res) => match res {
                 Some(info) => match info {
                     tui::UpdateInfo::CountIncrement(todo, is_go_next_state) => {
@@ -41,6 +49,10 @@ fn main() -> Result<()> {
                         }
                         start_time = None;
                         data_manage_json::DataManageJson::add_task_log(&todo.id, &Local::now())?;
+                        todays_executed_count =
+                            data_manage_json::DataManageJson::get_executed_count_by_day(
+                                &Local::now(),
+                            )?;
                     }
                     tui::UpdateInfo::AddNewTodo(todo, is_go_next_state) => {
                         todo_list.add_todo(todo)?;

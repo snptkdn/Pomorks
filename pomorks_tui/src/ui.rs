@@ -396,7 +396,7 @@ where
     B: Backend,
 {
     let message = Spans::from(vec![Span::styled(
-        format!("today: {}", app.status),
+        format!("today: {}", app.todays_executed_count),
         Style::default().fg(Color::Blue),
     )]);
     let block = Block::default().borders(Borders::ALL);

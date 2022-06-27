@@ -69,6 +69,7 @@ pub struct App<'a> {
     pub todo_focus: Option<TodoItem>,
     pub new_todo_string: String,
     pub status: String,
+    pub todays_executed_count: i64,
 }
 
 impl<'a> App<'a> {
@@ -80,6 +81,7 @@ impl<'a> App<'a> {
         status: String,
         id: &Option<String>,
         start_time: &Option<DateTime<Local>>,
+        todays_executed_count: i64,
     ) -> App<'a> {
         App {
             title,
@@ -111,6 +113,7 @@ impl<'a> App<'a> {
             },
             new_todo_string: String::new(),
             status,
+            todays_executed_count,
         }
     }
 

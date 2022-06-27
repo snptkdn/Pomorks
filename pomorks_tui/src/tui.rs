@@ -51,6 +51,7 @@ pub fn launch_tui(
     status: &String,
     id: &Option<String>,
     start_time: &Option<DateTime<Local>>,
+    todays_executed_count: i64,
 ) -> Result<Option<UpdateInfo>> {
     let cli: Cli = Cli {
         tick_rate: 1000,
@@ -103,6 +104,7 @@ pub fn launch_tui(
         status.clone(),
         id,
         start_time,
+        todays_executed_count,
     );
 
     terminal.clear()?;

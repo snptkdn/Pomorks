@@ -116,4 +116,25 @@ impl DataManage for DataManageJson {
 
         Ok(())
     }
+
+    fn get_executed_count_by_day(date: &DateTime<Local>) -> Result<i64> {
+        let task_log_json = File::open("task_log.json")?;
+        let task_log: Vec<TaskLogJson> = serde_json::from_reader(task_log_json)?;
+
+        let count = task_log.iter().fold(0, |acc, log| {
+            let date_each = match Local.datetime_from_str(&log.date, DATE_FORMAT) {
+                Ok(res) => res,
+                Err(_) => Local
+                    .datetime_from_str("1800/02/02 00:00:00+09:00", DATE_FORMAT)
+                    .unwrap(),
+            };
+            if (date_each - *date).num_days() == 0 {
+                acc + 1
+            } else {
+                acc
+            }
+        });
+
+        Ok(count)
+    }
 }
