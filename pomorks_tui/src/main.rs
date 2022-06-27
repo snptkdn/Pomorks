@@ -7,7 +7,7 @@ use anyhow::Result;
 use core::panic;
 use std::task;
 
-use pomorks_data_manage::data_manage_json::DataManageJson;
+use pomorks_data_manage::data_manage_json::{self, DataManageJson};
 use pomorks_data_manage::data_manage_trait::DataManage;
 use pomorks_data_manage::todo::{TodoItem, TodoList};
 
@@ -54,6 +54,13 @@ fn main() -> Result<()> {
                     }
                     tui::UpdateInfo::MoveNextState() => {
                         state = State::get_next_state(&state);
+                    }
+                    tui::UpdateInfo::ArchiveFinishedTodo(is_go_next_state) => {
+                        let finished_todo = todo_list.drain_finished_todo();
+                        data_manage_json::DataManageJson::archive_todo(finished_todo)?;
+                        if is_go_next_state {
+                            state = State::get_next_state(&state);
+                        }
                     }
                 },
                 None => break,

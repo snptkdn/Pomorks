@@ -142,6 +142,9 @@ impl<'a> App<'a> {
             self.new_todo_string.push(c);
         } else {
             match c {
+                'b' => {
+                    return Ok(Some(UpdateInfo::ArchiveFinishedTodo(false)));
+                }
                 'a' => {
                     self.show_add_todo = true;
                 }
@@ -195,7 +198,13 @@ impl<'a> App<'a> {
 
             return match &self.todo_focus {
                 // TODO!:このCloneは微妙。Lifetime付けたいが、、、
-                Some(todo) => Some(UpdateInfo::CountIncrement(todo.clone(), true)),
+                Some(todo) => {
+                    if let State::WORK(_) = self.state {
+                        Some(UpdateInfo::CountIncrement(todo.clone(), true))
+                    } else {
+                        Some(UpdateInfo::MoveNextState())
+                    }
+                }
                 None => Some(UpdateInfo::MoveNextState()),
             };
         }

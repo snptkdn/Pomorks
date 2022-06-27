@@ -29,6 +29,7 @@ pub enum UpdateInfo {
     CountIncrement(TodoItem, ShouldGoNextState),
     AddNewTodo(TodoItem, ShouldGoNextState),
     ChangeFinishStatus(TodoItem, ShouldGoNextState),
+    ArchiveFinishedTodo(ShouldGoNextState),
     MoveNextState(),
 }
 
