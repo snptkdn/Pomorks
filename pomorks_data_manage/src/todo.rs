@@ -45,6 +45,13 @@ impl TodoList {
             .map(|(_, todo)| todo.clone())
             .collect()
     }
+
+    pub fn drain_finished_todo(&mut self) -> Vec<TodoItem> {
+        self.todo_list
+            .drain_filter(|_id, todo| todo.finished)
+            .map(|(k, v)| v)
+            .collect()
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
