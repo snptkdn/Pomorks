@@ -131,6 +131,7 @@ pub fn launch_tui(
                     }
                     KeyCode::Delete => app.on_delete(),
                     KeyCode::Backspace => app.on_delete(),
+                    KeyCode::Tab => app.on_change_tab(),
                     KeyCode::Esc => {
                         disable_raw_mode()?;
                         execute!(

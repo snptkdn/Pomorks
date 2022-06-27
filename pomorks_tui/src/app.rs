@@ -54,6 +54,20 @@ impl State {
     }
 }
 
+pub enum Tab {
+    Main,
+    Statistics,
+}
+
+impl Tab {
+    pub fn get_next_tab(&self) -> Self {
+        match self {
+            Tab::Main => Tab::Statistics,
+            Tab::Statistics => Tab::Main,
+        }
+    }
+}
+
 pub struct App<'a> {
     pub title: &'a str,
     pub should_quit: bool,
@@ -70,6 +84,7 @@ pub struct App<'a> {
     pub new_todo_string: String,
     pub status: String,
     pub todays_executed_count: i64,
+    pub selected_tab: Tab,
 }
 
 impl<'a> App<'a> {
@@ -114,6 +129,7 @@ impl<'a> App<'a> {
             new_todo_string: String::new(),
             status,
             todays_executed_count,
+            selected_tab: Tab::Main,
         }
     }
 
@@ -154,6 +170,10 @@ impl<'a> App<'a> {
         if self.show_add_todo {
             self.new_todo_string.pop();
         }
+    }
+
+    pub fn on_change_tab(&mut self) {
+        self.selected_tab = Tab::get_next_tab(&self.selected_tab);
     }
 
     pub fn on_next_state(&mut self) -> Result<Option<UpdateInfo>> {

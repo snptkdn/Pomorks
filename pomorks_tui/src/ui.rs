@@ -1,4 +1,4 @@
-use crate::app::{App, State, ONE_MINUTE};
+use crate::app::{App, State, Tab, ONE_MINUTE};
 use chrono::prelude::*;
 use pomorks_data_manage::todo::{TodoItem, TodoList};
 use std::cmp::min;
@@ -15,24 +15,31 @@ use tui::{
 
 pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App, todo_list: &TodoList) {
     let chunks = Layout::default()
-        .constraints(
-            [
-                Constraint::Length(3),
-                Constraint::Min(0),
-                Constraint::Length(5),
-                Constraint::Length(3),
-            ]
-            .as_ref(),
-        )
+        .constraints([Constraint::Length(3), Constraint::Min(0)].as_ref())
         .split(f.size());
     draw_title(f, app, chunks[0]);
-    if app.show_add_todo {
-        draw_add_todo(f, app);
-    } else {
-        draw_tasks(f, app, chunks[1]);
-    }
-    draw_status(f, app, chunks[2]);
-    draw_under_status_bar(f, app, chunks[3]);
+    match app.selected_tab {
+        Tab::Main => {
+            let chunks = Layout::default()
+                .constraints(
+                    [
+                        Constraint::Min(0),
+                        Constraint::Length(5),
+                        Constraint::Length(3),
+                    ]
+                    .as_ref(),
+                )
+                .split(chunks[1]);
+            if app.show_add_todo {
+                draw_add_todo(f, app);
+            } else {
+                draw_tasks(f, app, chunks[0]);
+            }
+            draw_status(f, app, chunks[1]);
+            draw_under_status_bar(f, app, chunks[2]);
+        }
+        Tab::Statistics => {}
+    };
 }
 
 // タイトルの描画
