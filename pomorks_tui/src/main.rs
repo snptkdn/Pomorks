@@ -27,7 +27,7 @@ fn main() -> Result<()> {
     let (mut start_time, mut id) = data_manage_json::DataManageJson::read_task_dealing()?;
 
     loop {
-        // TODO:start_time‚Ì§Œä‚ªŠeƒtƒ[‚ÉŽU‚Á‚Ä‚é‚Ì—Ç‚­‚È‚¢‚ªAAA
+        // TODO:start_timeã®åˆ¶å¾¡ãŒå„ãƒ•ãƒ­ãƒ¼ã«æ•£ã£ã¦ã‚‹ã®è‰¯ããªã„ãŒã€ã€ã€
         match tui::launch_tui(&mut todo_list, &state, &status, &id, &start_time) {
             Ok(res) => match res {
                 Some(info) => match info {

@@ -105,7 +105,9 @@ where
                         .fg(Color::Green)
                         .add_modifier(Modifier::CROSSED_OUT),
                     (true, false) => Style::default().fg(Color::Green),
-                    (false, true) => Style::default().add_modifier(Modifier::CROSSED_OUT),
+                    (false, true) => Style::default()
+                        .fg(Color::DarkGray)
+                        .add_modifier(Modifier::CROSSED_OUT),
                     (false, false) => Style::default(),
                 },
             ))])
@@ -234,7 +236,11 @@ where
     )]);
 
     let percentage = (progressed_time as f64 / app.limit_time as f64) * 100.0;
-    let percentage = if percentage > 100.0 { 100.0 } else { percentage};
+    let percentage = if percentage > 100.0 {
+        100.0
+    } else {
+        percentage
+    };
     let gauge = Gauge::default()
         .gauge_style(Style::default().fg(Color::Red))
         .percent(percentage as u16);
