@@ -1,5 +1,6 @@
 use crate::app::{App, State, ONE_MINUTE};
 use pomorks_data_manage::todo::{TodoItem, TodoList};
+use std::cmp::min;
 use std::fs::{read, read_to_string};
 use std::ops::Div;
 use tui::{
@@ -30,7 +31,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App, todo_list: &TodoList) {
         draw_tasks(f, app, chunks[1]);
     }
     draw_status(f, app, chunks[2]);
-    draw_message(f, app, chunks[3]);
+    draw_under_status_bar(f, app, chunks[3]);
 }
 
 // タイトルの描画
@@ -342,6 +343,25 @@ where
     f.render_widget(task_paragraph, chunks[1]);
 }
 
+fn draw_under_status_bar<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect)
+where
+    B: Backend,
+{
+    let chunks = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints(
+            [
+                Constraint::Percentage(70),
+                Constraint::Percentage(15),
+                Constraint::Percentage(15),
+            ]
+            .as_ref(),
+        )
+        .split(area);
+
+    draw_message(f, app, chunks[0]);
+    draw_total_estimate(f, app, chunks[2]);
+}
 fn draw_message<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
@@ -353,5 +373,39 @@ where
     let block = Block::default().borders(Borders::ALL);
 
     let paragraph = Paragraph::new(title).block(block).wrap(Wrap { trim: true });
+    f.render_widget(paragraph, area);
+}
+fn draw_total_estimate<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect)
+where
+    B: Backend,
+{
+    let estimate_count = app
+        .todos
+        .items
+        .iter()
+        .filter(|todo| !todo.finished)
+        .fold(0, |sum, todo| sum + todo.estimate_count);
+
+    let executed_except_overestimate_count = app
+        .todos
+        .items
+        .iter()
+        .filter(|todo| !todo.finished)
+        .fold(0, |sum, todo| {
+            sum + min(todo.executed_count, todo.estimate_count)
+        });
+    let message = Spans::from(vec![Span::styled(
+        format!(
+            "estimate: {}/{}",
+            executed_except_overestimate_count, estimate_count
+        ),
+        Style::default().fg(Color::Green),
+    )]);
+    let block = Block::default().borders(Borders::ALL);
+
+    let paragraph = Paragraph::new(message)
+        .block(block)
+        .alignment(Alignment::Center)
+        .wrap(Wrap { trim: true });
     f.render_widget(paragraph, area);
 }
