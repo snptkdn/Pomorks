@@ -22,8 +22,17 @@ impl State {
         match state_now {
             State::WORK(work_count) if *work_count == 4 => State::LUNCH(*work_count),
             State::WORK(work_count) => State::BREAK(*work_count),
-            State::LUNCH(_) => State::WORK(0),
+            State::LUNCH(_) => State::WORK(1),
             State::BREAK(work_count) => State::WORK(*work_count + 1),
+        }
+    }
+
+    pub fn get_prev_state(state_now: &Self) -> State {
+        match state_now {
+            State::WORK(work_count) if *work_count == 1 => State::LUNCH(4),
+            State::WORK(work_count) => State::BREAK(*work_count - 1),
+            State::LUNCH(_) => State::WORK(4),
+            State::BREAK(work_count) => State::WORK(*work_count),
         }
     }
 
@@ -126,9 +135,21 @@ impl<'a> App<'a> {
         }
     }
 
-    pub fn on_focus_left_pain(&mut self) {}
+    pub fn on_next_state(&mut self) -> Result<Option<UpdateInfo>> {
+        if !self.on_progress {
+            Ok(Some(UpdateInfo::MoveNextState()))
+        } else {
+            Ok(None)
+        }
+    }
 
-    pub fn on_focus_right_pain(&mut self) {}
+    pub fn on_prev_state(&mut self) -> Result<Option<UpdateInfo>> {
+        if !self.on_progress {
+            Ok(Some(UpdateInfo::MovePrevState()))
+        } else {
+            Ok(None)
+        }
+    }
 
     pub fn on_change_finish_flag(&mut self) -> Result<Option<UpdateInfo>> {
         match self.todos.state.selected() {
@@ -167,10 +188,10 @@ impl<'a> App<'a> {
                     self.on_enter();
                 }
                 'l' => {
-                    self.on_focus_right_pain();
+                    return self.on_next_state();
                 }
                 'h' => {
-                    self.on_focus_left_pain();
+                    return self.on_prev_state();
                 }
                 'f' => {
                     return self.on_change_finish_flag();

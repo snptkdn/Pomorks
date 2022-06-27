@@ -30,6 +30,7 @@ pub enum UpdateInfo {
     AddNewTodo(TodoItem, ShouldGoNextState),
     ChangeFinishStatus(TodoItem, ShouldGoNextState),
     ArchiveFinishedTodo(ShouldGoNextState),
+    MovePrevState(),
     MoveNextState(),
 }
 

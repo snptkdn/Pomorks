@@ -55,6 +55,9 @@ fn main() -> Result<()> {
                     tui::UpdateInfo::MoveNextState() => {
                         state = State::get_next_state(&state);
                     }
+                    tui::UpdateInfo::MovePrevState() => {
+                        state = State::get_prev_state(&state);
+                    }
                     tui::UpdateInfo::ArchiveFinishedTodo(is_go_next_state) => {
                         let finished_todo = todo_list.drain_finished_todo();
                         data_manage_json::DataManageJson::archive_todo(finished_todo)?;
