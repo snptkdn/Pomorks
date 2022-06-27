@@ -27,6 +27,7 @@ fn main() -> Result<()> {
     let (mut start_time, mut id) = data_manage_json::DataManageJson::read_task_dealing()?;
 
     loop {
+        // TODO:start_timeの制御が各フローに散ってるの良くないが、、、
         match tui::launch_tui(&mut todo_list, &state, &status, &id, &start_time) {
             Ok(res) => match res {
                 Some(info) => match info {
@@ -38,6 +39,7 @@ fn main() -> Result<()> {
                         if is_go_next_state {
                             state = State::get_next_state(&state);
                         }
+                        start_time = None;
                     }
                     tui::UpdateInfo::AddNewTodo(todo, is_go_next_state) => {
                         todo_list.add_todo(todo)?;
@@ -56,9 +58,11 @@ fn main() -> Result<()> {
                     }
                     tui::UpdateInfo::MoveNextState() => {
                         state = State::get_next_state(&state);
+                        start_time = None;
                     }
                     tui::UpdateInfo::MovePrevState() => {
                         state = State::get_prev_state(&state);
+                        start_time = None;
                     }
                     tui::UpdateInfo::ArchiveFinishedTodo(is_go_next_state) => {
                         let finished_todo = todo_list.drain_finished_todo();

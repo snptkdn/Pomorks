@@ -243,10 +243,8 @@ impl<'a> App<'a> {
         }
 
         if let Some(start) = self.start_time {
-            if (Local::now() - start).num_seconds() as usize >= self.limit_time {
+            if (Local::now() - start).num_seconds() as i64 >= self.limit_time as i64 {
                 send_notification(self.state);
-                self.start_time = None;
-                self.on_progress = false;
 
                 return match &self.todo_focus {
                     // TODO!:このCloneは微妙。Lifetime付けたいが、、、

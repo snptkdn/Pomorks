@@ -215,18 +215,18 @@ where
         .split(area);
 
     let progressed_time = if let Some(start) = app.start_time {
-        (Local::now() - start).num_seconds() as usize
+        (Local::now() - start).num_seconds() as i64
     } else {
         0
     };
 
-    let remaind_time = app.limit_time - progressed_time;
+    let remaind_time = (app.limit_time as i64 - progressed_time);
 
     let timer = Spans::from(vec![Span::styled(
         format!(
             "{}:{:>02}",
-            remaind_time.div(ONE_MINUTE),
-            remaind_time % ONE_MINUTE
+            remaind_time.div(ONE_MINUTE as i64),
+            remaind_time % ONE_MINUTE as i64
         ),
         Style::default()
             .add_modifier(Modifier::BOLD)
@@ -234,6 +234,7 @@ where
     )]);
 
     let percentage = (progressed_time as f64 / app.limit_time as f64) * 100.0;
+    let percentage = if percentage > 100.0 { 100.0 } else { percentage};
     let gauge = Gauge::default()
         .gauge_style(Style::default().fg(Color::Red))
         .percent(percentage as u16);
