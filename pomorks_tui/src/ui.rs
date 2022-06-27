@@ -9,7 +9,9 @@ use tui::{
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Span, Spans},
-    widgets::{Block, Borders, Gauge, List, ListItem, Paragraph, Tabs, Wrap},
+    widgets::{
+        BarChart, Block, Borders, Chart, Dataset, Gauge, List, ListItem, Paragraph, Tabs, Wrap,
+    },
     Frame,
 };
 
@@ -38,7 +40,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App, todo_list: &TodoList) {
             draw_status(f, app, chunks[1]);
             draw_under_status_bar(f, app, chunks[2]);
         }
-        Tab::Statistics => {}
+        Tab::Statistics => draw_statics(f, app, chunks[1]),
     };
 }
 
@@ -448,4 +450,47 @@ where
         .alignment(Alignment::Center)
         .wrap(Wrap { trim: true });
     f.render_widget(paragraph, area);
+}
+
+fn draw_statics<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect)
+where
+    B: Backend,
+{
+    let chunks = Layout::default()
+        .direction(Direction::Horizontal)
+        .margin(2)
+        .constraints(
+            [
+                Constraint::Ratio(1, 3),
+                Constraint::Ratio(1, 3),
+                Constraint::Ratio(1, 3),
+            ]
+            .as_ref(),
+        )
+        .split(area);
+
+    let block_yearly = Block::default()
+        .borders(Borders::ALL)
+        .title("YEAR")
+        .title_alignment(Alignment::Center);
+    let block_monthly = Block::default().borders(Borders::ALL);
+    let block_weekly = Block::default().borders(Borders::ALL);
+
+    let weekly = [
+        ("Mon", 11),
+        ("Tue", 2),
+        ("Wed", 2),
+        ("Thu", 3),
+        ("Fri", 4),
+        ("Sat", 11),
+        ("Sun", 11),
+    ];
+
+    let chart_yearly = BarChart::default()
+        .block(block_yearly)
+        .data(&weekly)
+        .bar_width(5)
+        .bar_style(Style::default().fg(Color::LightRed))
+        .bar_gap(5);
+    f.render_widget(chart_yearly, chunks[0]);
 }
