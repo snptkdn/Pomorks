@@ -360,6 +360,7 @@ where
         .split(area);
 
     draw_message(f, app, chunks[0]);
+    draw_today_workcount(f, app, chunks[1]);
     draw_total_estimate(f, app, chunks[2]);
 }
 fn draw_message<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect)
@@ -375,6 +376,24 @@ where
     let paragraph = Paragraph::new(title).block(block).wrap(Wrap { trim: true });
     f.render_widget(paragraph, area);
 }
+
+fn draw_today_workcount<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect)
+where
+    B: Backend,
+{
+    let message = Spans::from(vec![Span::styled(
+        format!("today: {}", app.status),
+        Style::default().fg(Color::Blue),
+    )]);
+    let block = Block::default().borders(Borders::ALL);
+
+    let paragraph = Paragraph::new(message)
+        .block(block)
+        .alignment(Alignment::Center)
+        .wrap(Wrap { trim: true });
+    f.render_widget(paragraph, area);
+}
+
 fn draw_total_estimate<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
