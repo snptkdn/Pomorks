@@ -4,6 +4,7 @@ mod statefull_list;
 mod tui;
 mod ui;
 use anyhow::Result;
+use chrono::prelude::*;
 use core::panic;
 use std::task;
 
@@ -23,9 +24,10 @@ fn main() -> Result<()> {
 
     let mut state = app::State::WORK(1);
     let mut status = String::new();
+    let (mut start_time, mut id) = data_manage_json::DataManageJson::read_task_dealing()?;
 
     loop {
-        match tui::launch_tui(&mut todo_list, &state, &status) {
+        match tui::launch_tui(&mut todo_list, &state, &status, &id, &start_time) {
             Ok(res) => match res {
                 Some(info) => match info {
                     tui::UpdateInfo::CountIncrement(todo, is_go_next_state) => {
@@ -64,6 +66,11 @@ fn main() -> Result<()> {
                         if is_go_next_state {
                             state = State::get_next_state(&state);
                         }
+                    }
+                    tui::UpdateInfo::StartTodo(_start_time, _id) => {
+                        data_manage_json::DataManageJson::write_task_dealing(&_id, &_start_time)?;
+                        id = Some(_id.clone());
+                        start_time = Some(_start_time);
                     }
                 },
                 None => break,

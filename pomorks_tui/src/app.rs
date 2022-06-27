@@ -78,6 +78,8 @@ impl<'a> App<'a> {
         todo_list: &TodoList,
         state: &'a State,
         status: String,
+        id: &Option<String>,
+        start_time: &Option<DateTime<Local>>,
     ) -> App<'a> {
         App {
             title,
@@ -85,13 +87,28 @@ impl<'a> App<'a> {
             show_add_todo: false,
             show_chart: false,
             progress: 0.0,
-            start_time: None,
+            start_time: if let Some(start_time) = start_time {
+                Some(*start_time)
+            } else {
+                None
+            },
             limit_time: State::get_limit_time(state),
             on_progress: false,
             state,
             todos: StatefulList::with_items(todo_list.get_vec_of_todo()),
             enhanced_graphics,
-            todo_focus: None,
+            // TODO!:分かりにくすぎる...
+            todo_focus: if let Some(id) = id {
+                todo_list.get_vec_of_todo().iter().find_map(|todo| {
+                    if &todo.id == id {
+                        Some(todo.clone())
+                    } else {
+                        None
+                    }
+                })
+            } else {
+                None
+            },
             new_todo_string: String::new(),
             status,
         }
@@ -199,8 +216,16 @@ impl<'a> App<'a> {
                 }
                 ' ' => {
                     self.on_progress = !self.on_progress;
-                    if self.start_time == None {
+                    if self.start_time.is_none() {
                         self.start_time = Some(Local::now());
+                        return Ok(Some(UpdateInfo::StartTodo(
+                            self.start_time.unwrap(),
+                            if let Some(focus) = &self.todo_focus {
+                                focus.id.to_string()
+                            } else {
+                                "".to_string()
+                            },
+                        )));
                     }
                 }
                 _ => {}

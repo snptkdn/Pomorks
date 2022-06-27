@@ -1,6 +1,7 @@
 use crate::app::{App, State};
 use crate::ui;
 use anyhow::{anyhow, Result};
+use chrono::prelude::*;
 use crossterm::{
     event::{
         self, DisableMouseCapture, EnableMouseCapture, Event as CEvent, KeyCode, KeyModifiers,
@@ -30,6 +31,7 @@ pub enum UpdateInfo {
     AddNewTodo(TodoItem, ShouldGoNextState),
     ChangeFinishStatus(TodoItem, ShouldGoNextState),
     ArchiveFinishedTodo(ShouldGoNextState),
+    StartTodo(DateTime<Local>, String),
     MovePrevState(),
     MoveNextState(),
 }
@@ -47,6 +49,8 @@ pub fn launch_tui(
     todo_list: &mut TodoList,
     state: &State,
     status: &String,
+    id: &Option<String>,
+    start_time: &Option<DateTime<Local>>,
 ) -> Result<Option<UpdateInfo>> {
     let cli: Cli = Cli {
         tick_rate: 1000,
@@ -97,6 +101,8 @@ pub fn launch_tui(
         &todo_list,
         state,
         status.clone(),
+        id,
+        start_time,
     );
 
     terminal.clear()?;

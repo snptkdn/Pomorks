@@ -1,10 +1,11 @@
 use crate::data_manage_trait::DataManage;
 use crate::todo::{self, *};
-use anyhow::{Context, Result};
-use std::env;
+use anyhow::{anyhow, Context, Result};
+use chrono::prelude::*;
 use std::fs::{File, OpenOptions};
 use std::io::{self, BufRead, BufReader, Read, Write};
 use std::path::Path;
+use std::{env, fs, vec};
 
 pub struct DataManageJson {}
 
@@ -51,5 +52,35 @@ impl DataManage for DataManageJson {
         file.flush()?;
 
         Ok(())
+    }
+
+    fn write_task_dealing(id: &String, start_time: &DateTime<Local>) -> Result<()> {
+        let start_time = start_time.format("%Y/%m/%d %H:%M:%S%Z");
+
+        // TODO!: ファイル名は引数指定
+        let mut file = File::create("dealing_task.json")?;
+        write!(file, "{},{}", id, start_time)?;
+        file.flush()?;
+
+        Ok(())
+    }
+
+    fn read_task_dealing() -> Result<(Option<DateTime<Local>>, Option<String>)> {
+        let str = match fs::read_to_string("dealing_task.json") {
+            Ok(res) => res,
+            Err(e) => {
+                return Ok((None, None));
+            }
+        };
+
+        let vector: Vec<&str> = str.split(",").collect();
+        if vector.len() != 2 {
+            return Err(anyhow!("dealing_task.json is not collect."));
+        }
+
+        let id = vector[0];
+        let start_time = Local.datetime_from_str(vector[1], "%Y/%m/%d %H:%M:%S%Z")?;
+
+        Ok((Some(start_time), Some(id.to_string())))
     }
 }
