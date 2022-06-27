@@ -11,4 +11,5 @@ crossterm = "0.19"
 tui = { version = "0.15", default-features = false, features = ['crossterm'] }
 pomorks_data_manage = {path="../pomorks_data_manage"}
 winrt-notification="0.5.1"
+chrono="0.4"
 
