@@ -8,7 +8,7 @@ use std::io::{self, BufRead, BufReader, Read, Write};
 use std::path::Path;
 use std::{env, fs, vec};
 
-const DATE_FORMAT: &str = "%Y/%m/%d %H:%M:%S%Z";
+pub const DATE_FORMAT: &str = "%Y/%m/%d %H:%M:%S%Z";
 pub struct DataManageJson {}
 
 impl DataManage for DataManageJson {

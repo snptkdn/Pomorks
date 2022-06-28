@@ -1,3 +1,4 @@
+use core::num;
 use std::collections::VecDeque;
 
 use anyhow::Result;
@@ -14,7 +15,25 @@ fn get_nextday(date: Date<Local>) -> Result<Date<Local>> {
     Ok(date + Duration::days(1))
 }
 
-fn get_previous_days_until_this_weekday(
+pub fn get_this_week(date: Date<Local>) -> Result<Vec<Date<Local>>> {
+    let weekday = date.weekday();
+    let num_from_monday = date.weekday().num_days_from_monday() as i64;
+
+    let duration_from_monday = Duration::days(num_from_monday);
+    let monday = date - duration_from_monday;
+
+    Ok(vec![
+        monday,
+        monday + Duration::days(1),
+        monday + Duration::days(2),
+        monday + Duration::days(3),
+        monday + Duration::days(4),
+        monday + Duration::days(5),
+        monday + Duration::days(6),
+    ])
+}
+
+pub fn get_previous_days_until_this_weekday(
     end_weekday: Weekday,
     date: Date<Local>,
     mut vec: VecDeque<Date<Local>>,
@@ -94,4 +113,22 @@ fn test_get_days_this_month_until_this_day() {
     assert_eq!((this_month[0].month(), this_month[0].day()), (6, 1));
     assert_eq!((this_month[1].month(), this_month[1].day()), (6, 2));
     assert_eq!((this_month[2].month(), this_month[2].day()), (6, 3));
+}
+
+#[test]
+fn test_get_this_week() {
+    use super::*;
+
+    let today = Local.ymd(2022, 6, 3);
+
+    let this_week = get_this_week(today).unwrap();
+
+    assert_eq!(this_week.len(), 7);
+    assert_eq!((this_week[0].month(), this_week[0].day()), (5, 30));
+    assert_eq!((this_week[1].month(), this_week[1].day()), (5, 31));
+    assert_eq!((this_week[2].month(), this_week[2].day()), (6, 1));
+    assert_eq!((this_week[3].month(), this_week[3].day()), (6, 2));
+    assert_eq!((this_week[4].month(), this_week[4].day()), (6, 3));
+    assert_eq!((this_week[5].month(), this_week[5].day()), (6, 4));
+    assert_eq!((this_week[6].month(), this_week[6].day()), (6, 5));
 }
