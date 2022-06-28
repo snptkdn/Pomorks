@@ -86,6 +86,11 @@ impl DataManage for DataManageJson {
         Ok((Some(start_time), Some(id.to_string())))
     }
 
+    fn delete_task_dealing() -> Result<()> {
+        fs::remove_file("dealing_task.json")?;
+        Ok(())
+    }
+
     fn add_task_log(id: &String, date: &DateTime<Local>) -> Result<()> {
         let task_log_json = match File::open("task_log.json") {
             Ok(file) => file,
@@ -123,7 +128,7 @@ impl DataManage for DataManageJson {
                     .datetime_from_str("1800/02/02 00:00:00+09:00", DATE_FORMAT)
                     .unwrap(),
             };
-            if (date_each - *date).num_days() == 0 {
+            if date_each.day() == date.day() {
                 acc + 1
             } else {
                 acc
