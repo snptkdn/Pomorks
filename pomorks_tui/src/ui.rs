@@ -1,6 +1,7 @@
 use crate::app::{App, State, Tab, ONE_MINUTE};
 use crate::date_manage::{get_this_month, get_this_week};
 use chrono::prelude::*;
+use num_traits::FromPrimitive;
 use pomorks_data_manage::data_manage_json::DATE_FORMAT;
 use pomorks_data_manage::todo::{TodoItem, TodoList};
 use std::borrow::Cow;
@@ -8,6 +9,7 @@ use std::cmp::min;
 use std::collections::VecDeque;
 use std::fs::{read, read_to_string};
 use std::ops::Div;
+use std::str::FromStr;
 use std::string;
 use tui::{
     backend::Backend,
@@ -483,7 +485,10 @@ fn draw_chart_of_week<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
-    let block_weekly = Block::default().borders(Borders::ALL);
+    let block_weekly = Block::default()
+        .borders(Borders::ALL)
+        .title("THIS WEEK")
+        .title_alignment(Alignment::Center);
 
     let one_week = get_this_week(Local::today()).unwrap();
 
@@ -534,7 +539,13 @@ fn draw_chart_of_month<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
-    let block = Block::default().borders(Borders::ALL);
+    let block = Block::default()
+        .borders(Borders::ALL)
+        .title(format!(
+            "{}",
+            Month::from_u32(Local::today().month()).unwrap().name()
+        ))
+        .title_alignment(Alignment::Center);
 
     let one_month = get_this_month(Local::today()).unwrap();
 
@@ -580,7 +591,10 @@ fn draw_chart_of_year<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
-    let block = Block::default().borders(Borders::ALL);
+    let block = Block::default()
+        .borders(Borders::ALL)
+        .title(format!("YEAR {}", Local::today().year()))
+        .title_alignment(Alignment::Center);
 
     let one_year = vec![
         Month::January,
