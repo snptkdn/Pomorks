@@ -15,6 +15,7 @@ pub trait DataManage {
     fn archive_todo(archived_todo_list: Vec<TodoItem>) -> Result<()>;
     fn write_task_dealing(id: &String, start_time: &DateTime<Local>) -> Result<()>;
     fn read_task_dealing() -> Result<(Option<DateTime<Local>>, Option<String>)>;
+    fn delete_task_dealing() -> Result<()>;
     fn add_task_log(id: &String, date: &DateTime<Local>) -> Result<()>;
     fn get_executed_count_by_day(date: &DateTime<Local>) -> Result<i64>;
     fn get_log_all() -> Result<Vec<TaskLogJson>>;
