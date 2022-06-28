@@ -1,4 +1,4 @@
-use crate::app::{App, State};
+use crate::app::App;
 use crate::ui;
 use anyhow::{anyhow, Result};
 use chrono::prelude::*;
@@ -10,6 +10,7 @@ use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
 use pomorks_data_manage::data_manage_trait::TaskLogJson;
+use pomorks_data_manage::todo::State;
 use pomorks_data_manage::todo::TodoItem;
 use pomorks_data_manage::todo::TodoList;
 use std::{
@@ -32,7 +33,7 @@ pub enum UpdateInfo {
     AddNewTodo(TodoItem, ShouldGoNextState),
     ChangeFinishStatus(TodoItem, ShouldGoNextState),
     ArchiveFinishedTodo(ShouldGoNextState),
-    StartTodo(DateTime<Local>, String),
+    StartTodo(DateTime<Local>, String, State),
     MovePrevState(),
     MoveNextState(),
 }

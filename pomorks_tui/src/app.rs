@@ -4,56 +4,7 @@ use crate::tui::UpdateInfo;
 use anyhow::Result;
 use chrono::prelude::*;
 use pomorks_data_manage::data_manage_trait::TaskLogJson;
-use pomorks_data_manage::todo::{TodoItem, TodoList};
-
-#[cfg(debug_assertions)]
-pub const ONE_MINUTE: usize = 1;
-#[cfg(not(debug_assertions))]
-pub const ONE_MINUTE: usize = 60;
-type WorkCount = usize;
-
-#[derive(Clone)]
-pub enum State {
-    WORK(WorkCount),
-    BREAK(WorkCount),
-    LUNCH(WorkCount),
-}
-
-impl State {
-    pub fn get_next_state(state_now: &Self) -> State {
-        match state_now {
-            State::WORK(work_count) if *work_count == 4 => State::LUNCH(*work_count),
-            State::WORK(work_count) => State::BREAK(*work_count),
-            State::LUNCH(_) => State::WORK(1),
-            State::BREAK(work_count) => State::WORK(*work_count + 1),
-        }
-    }
-
-    pub fn get_prev_state(state_now: &Self) -> State {
-        match state_now {
-            State::WORK(work_count) if *work_count == 1 => State::LUNCH(4),
-            State::WORK(work_count) => State::BREAK(*work_count - 1),
-            State::LUNCH(_) => State::WORK(4),
-            State::BREAK(work_count) => State::WORK(*work_count),
-        }
-    }
-
-    pub fn get_state_name(state: &Self) -> String {
-        match state {
-            State::WORK(work_count) => format!("WORK_{}", work_count),
-            State::BREAK(_) => format!("BREAK"),
-            State::LUNCH(_) => format!("LUNCH"),
-        }
-    }
-
-    pub fn get_limit_time(state: &Self) -> usize {
-        match state {
-            State::WORK(_) => 25 * ONE_MINUTE,
-            State::BREAK(_) => 5 * ONE_MINUTE,
-            State::LUNCH(_) => 30 * ONE_MINUTE,
-        }
-    }
-}
+use pomorks_data_manage::todo::{State, TodoItem, TodoList};
 
 pub enum Tab {
     Main,
@@ -252,6 +203,7 @@ impl<'a> App<'a> {
                             } else {
                                 "".to_string()
                             },
+                            self.state.clone(),
                         )));
                     }
                 }

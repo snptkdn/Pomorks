@@ -1,5 +1,5 @@
 use crate::data_manage_trait::{DataManage, TaskLogJson};
-use crate::todo::{self, *};
+use crate::todo::*;
 use anyhow::{anyhow, Context, Result};
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -7,15 +7,22 @@ use std::fs::{File, OpenOptions};
 use std::io::{self, BufRead, BufReader, Read, Write};
 use std::path::Path;
 use std::{env, fs, vec};
-
 pub const DATE_FORMAT: &str = "%Y/%m/%d %H:%M:%S%Z";
+
 pub struct DataManageJson {}
+
+#[derive(Serialize, Deserialize)]
+struct TaskDealing {
+    id: Option<String>,
+    date: Option<DateTime<Local>>,
+    state: Option<State>,
+}
 
 impl DataManage for DataManageJson {
     fn write_all_todo(todo_list: TodoList) -> Result<()> {
         let serialized = serde_json::to_string(&todo_list)?;
 
-        // TODO!: ファイル名は引数指定
+        // TODO!: ファイル名�?�引数�?�?
         let mut file = File::create("task.json")?;
         write!(file, "{}", serialized)?;
         file.flush()?;
@@ -23,12 +30,12 @@ impl DataManage for DataManageJson {
         Ok(())
     }
 
-    fn read_all_todo() -> Result<Option<todo::TodoList>> {
+    fn read_all_todo() -> Result<Option<TodoList>> {
         let todo_list_json = match File::open("task.json") {
             Ok(file) => file,
             Err(_) => File::create("task.json").context("can't create file.")?,
         };
-        let todo_list: todo::TodoList = match serde_json::from_reader(todo_list_json) {
+        let todo_list: TodoList = match serde_json::from_reader(todo_list_json) {
             Ok(todo_list) => todo_list,
             Err(_) => TodoList::new(),
         };
@@ -48,7 +55,7 @@ impl DataManage for DataManageJson {
 
         archived_todo_list.extend(current_archive);
         let serialized = serde_json::to_string(&archived_todo_list)?;
-        // TODO!: ファイル名は引数指定
+        // TODO!: ファイル名�?�引数�?�?
         let mut file = File::create("archive.json")?;
         write!(file, "{}", serialized)?;
         file.flush()?;
@@ -56,34 +63,37 @@ impl DataManage for DataManageJson {
         Ok(())
     }
 
-    fn write_task_dealing(id: &String, start_time: &DateTime<Local>) -> Result<()> {
-        let start_time = start_time.format(DATE_FORMAT);
+    fn write_task_dealing(id: &String, start_time: &DateTime<Local>, state: &State) -> Result<()> {
+        let task_dealing = TaskDealing {
+            id: Some(id.to_string()),
+            date: Some(start_time.clone()),
+            state: Some(state.clone()),
+        };
 
-        // TODO!: ファイル名は引数指定
+        let serialized = serde_json::to_string(&task_dealing)?;
+
         let mut file = File::create("dealing_task.json")?;
-        write!(file, "{},{}", id, start_time)?;
+        write!(file, "{}", serialized)?;
         file.flush()?;
 
         Ok(())
     }
 
-    fn read_task_dealing() -> Result<(Option<DateTime<Local>>, Option<String>)> {
-        let str = match fs::read_to_string("dealing_task.json") {
-            Ok(res) => res,
-            Err(e) => {
-                return Ok((None, None));
-            }
+    fn read_task_dealing() -> Result<(Option<DateTime<Local>>, Option<String>, Option<State>)> {
+        let task_dealing_json = match File::open("dealing_task.json") {
+            Ok(file) => file,
+            Err(_) => File::create("dealing_task.json").context("can't create file.")?,
+        };
+        let task_dealing = match serde_json::from_reader(task_dealing_json) {
+            Ok(task_dealing) => task_dealing,
+            Err(_) => TaskDealing {
+                id: None,
+                date: None,
+                state: None,
+            },
         };
 
-        let vector: Vec<&str> = str.split(",").collect();
-        if vector.len() != 2 {
-            return Err(anyhow!("dealing_task.json is not collect."));
-        }
-
-        let id = vector[0];
-        let start_time = Local.datetime_from_str(vector[1], DATE_FORMAT)?;
-
-        Ok((Some(start_time), Some(id.to_string())))
+        Ok((task_dealing.date, task_dealing.id, task_dealing.state))
     }
 
     fn delete_task_dealing() -> Result<()> {
@@ -109,7 +119,6 @@ impl DataManage for DataManageJson {
         });
 
         let serialized = serde_json::to_string(&task_log)?;
-        // TODO!: ファイル名は引数指定
         let mut file = File::create("task_log.json")?;
         write!(file, "{}", serialized)?;
         file.flush()?;

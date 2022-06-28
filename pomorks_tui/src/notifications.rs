@@ -1,5 +1,5 @@
-use crate::app::State;
 use anyhow::Result;
+use pomorks_data_manage::todo::State;
 use std::{path::PathBuf, str::FromStr};
 use winrt_notification::{Duration, Sound, Toast};
 

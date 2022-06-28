@@ -1,8 +1,9 @@
-use crate::app::{App, State, Tab, ONE_MINUTE};
+use crate::app::{App, Tab};
 use crate::date_manage::{get_this_month, get_this_week};
 use chrono::prelude::*;
 use num_traits::FromPrimitive;
 use pomorks_data_manage::data_manage_json::DATE_FORMAT;
+use pomorks_data_manage::todo::{State, ONE_MINUTE};
 use pomorks_data_manage::todo::{TodoItem, TodoList};
 use std::borrow::Cow;
 use std::cmp::min;

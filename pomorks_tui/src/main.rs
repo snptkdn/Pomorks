@@ -11,9 +11,7 @@ use std::task;
 
 use pomorks_data_manage::data_manage_json::{self, DataManageJson};
 use pomorks_data_manage::data_manage_trait::DataManage;
-use pomorks_data_manage::todo::{TodoItem, TodoList};
-
-use crate::app::State;
+use pomorks_data_manage::todo::{State, TodoItem, TodoList};
 
 fn main() -> Result<()> {
     let mut todo_list = match DataManageJson::read_all_todo()? {
@@ -23,9 +21,15 @@ fn main() -> Result<()> {
 
     println!("{:?}", todo_list);
 
-    let mut state = app::State::WORK(1);
     let mut status = String::new();
-    let (mut start_time, mut id) = data_manage_json::DataManageJson::read_task_dealing()?;
+    let (mut start_time, mut id, state_opt) =
+        data_manage_json::DataManageJson::read_task_dealing()?;
+
+    let mut state = State::WORK(1);
+    if let Some(state_first) = state_opt {
+        state = state_first;
+    }
+
     let mut todays_executed_count =
         data_manage_json::DataManageJson::get_executed_count_by_day(&Local::now())?;
     let task_log = data_manage_json::DataManageJson::get_log_all()?;
@@ -88,10 +92,15 @@ fn main() -> Result<()> {
                             state = State::get_next_state(&state);
                         }
                     }
-                    tui::UpdateInfo::StartTodo(_start_time, _id) => {
-                        data_manage_json::DataManageJson::write_task_dealing(&_id, &_start_time)?;
+                    tui::UpdateInfo::StartTodo(_start_time, _id, _state) => {
+                        data_manage_json::DataManageJson::write_task_dealing(
+                            &_id,
+                            &_start_time,
+                            &_state,
+                        )?;
                         id = Some(_id.clone());
                         start_time = Some(_start_time);
+                        state = _state;
                     }
                 },
                 None => break,
