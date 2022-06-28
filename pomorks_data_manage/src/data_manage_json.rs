@@ -1,4 +1,4 @@
-use crate::data_manage_trait::DataManage;
+use crate::data_manage_trait::{DataManage, TaskLogJson};
 use crate::todo::{self, *};
 use anyhow::{anyhow, Context, Result};
 use chrono::prelude::*;
@@ -10,11 +10,6 @@ use std::{env, fs, vec};
 
 const DATE_FORMAT: &str = "%Y/%m/%d %H:%M:%S%Z";
 pub struct DataManageJson {}
-#[derive(Serialize, Deserialize, Debug)]
-pub struct TaskLogJson {
-    id: String,
-    date: String,
-}
 
 impl DataManage for DataManageJson {
     fn write_all_todo(todo_list: TodoList) -> Result<()> {
@@ -136,5 +131,10 @@ impl DataManage for DataManageJson {
         });
 
         Ok(count)
+    }
+
+    fn get_log_all() -> Result<Vec<TaskLogJson>> {
+        let task_log_json = File::open("task_log.json")?;
+        Ok(serde_json::from_reader(task_log_json)?)
     }
 }
