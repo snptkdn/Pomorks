@@ -33,6 +33,28 @@ pub fn get_this_week(date: Date<Local>) -> Result<Vec<Date<Local>>> {
     ])
 }
 
+pub fn get_this_month(date: Date<Local>) -> Result<Vec<Date<Local>>> {
+    let first_date_of_this_month = Local.ymd(date.year(), date.month(), 1);
+
+    let mut date_of_this_month: Vec<Date<Local>> = Vec::new();
+
+    get_next_day_until_different_month(first_date_of_this_month, &mut date_of_this_month);
+
+    Ok(date_of_this_month)
+}
+
+fn get_next_day_until_different_month(
+    date: Date<Local>,
+    vec: &mut Vec<Date<Local>>,
+) -> Vec<Date<Local>> {
+    vec.push(date);
+    if date.month() == date.succ().month() {
+        get_next_day_until_different_month(date.succ(), vec)
+    } else {
+        vec.clone()
+    }
+}
+
 pub fn get_previous_days_until_this_weekday(
     end_weekday: Weekday,
     date: Date<Local>,
@@ -131,4 +153,15 @@ fn test_get_this_week() {
     assert_eq!((this_week[4].month(), this_week[4].day()), (6, 3));
     assert_eq!((this_week[5].month(), this_week[5].day()), (6, 4));
     assert_eq!((this_week[6].month(), this_week[6].day()), (6, 5));
+}
+
+#[test]
+fn test_get_this_month() {
+    use super::*;
+
+    let today = Local.ymd(2022, 6, 3);
+
+    let this_month = get_this_month(today).unwrap();
+
+    assert_eq!(this_month.len(), 30);
 }

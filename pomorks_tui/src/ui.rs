@@ -1,8 +1,9 @@
 use crate::app::{App, State, Tab, ONE_MINUTE};
-use crate::date_manage::get_this_week;
+use crate::date_manage::{get_this_month, get_this_week};
 use chrono::prelude::*;
 use pomorks_data_manage::data_manage_json::DATE_FORMAT;
 use pomorks_data_manage::todo::{TodoItem, TodoList};
+use std::borrow::Cow;
 use std::cmp::min;
 use std::collections::VecDeque;
 use std::fs::{read, read_to_string};
@@ -465,19 +466,23 @@ where
         .margin(2)
         .constraints(
             [
-                Constraint::Ratio(1, 3),
-                Constraint::Ratio(1, 3),
-                Constraint::Ratio(1, 3),
+                Constraint::Percentage(15),
+                Constraint::Percentage(60),
+                Constraint::Percentage(25),
             ]
             .as_ref(),
         )
         .split(area);
 
-    let block_yearly = Block::default()
-        .borders(Borders::ALL)
-        .title("YEAR")
-        .title_alignment(Alignment::Center);
-    let block_monthly = Block::default().borders(Borders::ALL);
+    draw_chart_of_week(f, app, chunks[0]);
+    draw_chart_of_month(f, app, chunks[1]);
+    draw_chart_of_year(f, app, chunks[2]);
+}
+
+fn draw_chart_of_week<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect)
+where
+    B: Backend,
+{
     let block_weekly = Block::default().borders(Borders::ALL);
 
     let one_week = get_this_week(Local::today()).unwrap();
@@ -519,8 +524,111 @@ where
     let chart_weekly = BarChart::default()
         .block(block_weekly)
         .data(&one_week_data)
-        .bar_width(5)
+        .bar_width(3)
         .bar_style(Style::default().fg(Color::LightRed))
-        .bar_gap(5);
-    f.render_widget(chart_weekly, chunks[0]);
+        .bar_gap(1);
+    f.render_widget(chart_weekly, area);
+}
+
+fn draw_chart_of_month<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect)
+where
+    B: Backend,
+{
+    let block = Block::default().borders(Borders::ALL);
+
+    let one_month = get_this_month(Local::today()).unwrap();
+
+    // TODO:ここどうにかしたい。。
+    let one_month_str = [
+        "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16",
+        "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31",
+    ];
+
+    let one_month_pomodoro_count: Vec<u64> = one_month
+        .iter()
+        .map(|date| {
+            app.task_log
+                .iter()
+                .filter(|log| {
+                    let date_each = Local
+                        .datetime_from_str(&log.date, DATE_FORMAT)
+                        .unwrap()
+                        .date();
+
+                    (date_each.year(), date_each.month(), date_each.day())
+                        == (date.year(), date.month(), date.day())
+                })
+                .count() as u64
+        })
+        .collect();
+
+    let one_month_data: Vec<(&str, u64)> = one_month_str
+        .into_iter()
+        .zip(one_month_pomodoro_count)
+        .collect();
+
+    let chart_monthly = BarChart::default()
+        .block(block)
+        .data(&one_month_data)
+        .bar_width(3)
+        .bar_style(Style::default().fg(Color::LightGreen))
+        .bar_gap(1);
+    f.render_widget(chart_monthly, area);
+}
+
+fn draw_chart_of_year<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect)
+where
+    B: Backend,
+{
+    let block = Block::default().borders(Borders::ALL);
+
+    let one_year = vec![
+        Month::January,
+        Month::February,
+        Month::March,
+        Month::April,
+        Month::May,
+        Month::June,
+        Month::July,
+        Month::August,
+        Month::September,
+        Month::October,
+        Month::November,
+        Month::December,
+    ];
+    // TODO:ここどうにかしたい。。
+    let one_year_str = [
+        "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12",
+    ];
+
+    let one_month_pomodoro_count: Vec<u64> = one_year
+        .iter()
+        .map(|month| {
+            app.task_log
+                .iter()
+                .filter(|log| {
+                    let date_each = Local
+                        .datetime_from_str(&log.date, DATE_FORMAT)
+                        .unwrap()
+                        .date();
+
+                    (date_each.year(), date_each.month())
+                        == (Local::today().year(), month.number_from_month())
+                })
+                .count() as u64
+        })
+        .collect();
+
+    let one_year_data: Vec<(&str, u64)> = one_year_str
+        .into_iter()
+        .zip(one_month_pomodoro_count)
+        .collect();
+
+    let chart_yearly = BarChart::default()
+        .block(block)
+        .data(&one_year_data)
+        .bar_width(3)
+        .bar_style(Style::default().fg(Color::LightBlue))
+        .bar_gap(1);
+    f.render_widget(chart_yearly, area);
 }
