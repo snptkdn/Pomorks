@@ -3,6 +3,7 @@ use crate::statefull_list::StatefulList;
 use crate::tui::UpdateInfo;
 use anyhow::Result;
 use chrono::prelude::*;
+use pomorks_data_manage::data_manage_trait::TaskLogJson;
 use pomorks_data_manage::todo::{TodoItem, TodoList};
 
 #[cfg(debug_assertions)]
@@ -85,6 +86,7 @@ pub struct App<'a> {
     pub status: String,
     pub todays_executed_count: i64,
     pub selected_tab: Tab,
+    pub task_log: &'a Vec<TaskLogJson>,
 }
 
 impl<'a> App<'a> {
@@ -97,6 +99,7 @@ impl<'a> App<'a> {
         id: &Option<String>,
         start_time: &Option<DateTime<Local>>,
         todays_executed_count: i64,
+        task_log: &'a Vec<TaskLogJson>,
     ) -> App<'a> {
         App {
             title,
@@ -130,6 +133,7 @@ impl<'a> App<'a> {
             status,
             todays_executed_count,
             selected_tab: Tab::Main,
+            task_log,
         }
     }
 

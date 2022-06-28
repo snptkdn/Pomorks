@@ -9,6 +9,7 @@ use crossterm::{
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
+use pomorks_data_manage::data_manage_trait::TaskLogJson;
 use pomorks_data_manage::todo::TodoItem;
 use pomorks_data_manage::todo::TodoList;
 use std::{
@@ -52,6 +53,7 @@ pub fn launch_tui(
     id: &Option<String>,
     start_time: &Option<DateTime<Local>>,
     todays_executed_count: i64,
+    task_log: &Vec<TaskLogJson>,
 ) -> Result<Option<UpdateInfo>> {
     let cli: Cli = Cli {
         tick_rate: 1000,
@@ -105,6 +107,7 @@ pub fn launch_tui(
         id,
         start_time,
         todays_executed_count,
+        task_log,
     );
 
     terminal.clear()?;

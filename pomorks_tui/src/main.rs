@@ -1,4 +1,5 @@
 mod app;
+mod date_manage;
 mod notifications;
 mod statefull_list;
 mod tui;
@@ -26,6 +27,7 @@ fn main() -> Result<()> {
     let mut status = String::new();
     let (mut start_time, mut id) = data_manage_json::DataManageJson::read_task_dealing()?;
     let mut todays_executed_count = 0;
+    let task_log = data_manage_json::DataManageJson::get_log_all()?;
 
     loop {
         // TODO:start_timeの制御が各フローに散ってるの良くないが、、、
@@ -36,6 +38,7 @@ fn main() -> Result<()> {
             &id,
             &start_time,
             todays_executed_count,
+            &task_log,
         ) {
             Ok(res) => match res {
                 Some(info) => match info {
