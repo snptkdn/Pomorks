@@ -510,12 +510,12 @@ where
             app.task_log
                 .iter()
                 .filter(|log| {
-                    Local
+                    let date_each = Local
                         .datetime_from_str(&log.date, DATE_FORMAT)
                         .unwrap()
-                        .date()
-                        .day()
-                        == date.day()
+                        .date();
+                    (date_each.year(), date_each.month(), date_each.day())
+                        == (date.year(), date.month(), date.day())
                 })
                 .count() as u64
         })
