@@ -26,7 +26,8 @@ fn main() -> Result<()> {
     let mut state = app::State::WORK(1);
     let mut status = String::new();
     let (mut start_time, mut id) = data_manage_json::DataManageJson::read_task_dealing()?;
-    let mut todays_executed_count = 0;
+    let mut todays_executed_count =
+        data_manage_json::DataManageJson::get_executed_count_by_day(&Local::now())?;
     let task_log = data_manage_json::DataManageJson::get_log_all()?;
 
     loop {
