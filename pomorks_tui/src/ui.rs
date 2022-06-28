@@ -1,9 +1,13 @@
 use crate::app::{App, State, Tab, ONE_MINUTE};
+use crate::date_manage::get_this_week;
 use chrono::prelude::*;
+use pomorks_data_manage::data_manage_json::DATE_FORMAT;
 use pomorks_data_manage::todo::{TodoItem, TodoList};
 use std::cmp::min;
+use std::collections::VecDeque;
 use std::fs::{read, read_to_string};
 use std::ops::Div;
+use std::string;
 use tui::{
     backend::Backend,
     layout::{Alignment, Constraint, Direction, Layout, Rect},
@@ -476,21 +480,47 @@ where
     let block_monthly = Block::default().borders(Borders::ALL);
     let block_weekly = Block::default().borders(Borders::ALL);
 
-    let weekly = [
-        ("Mon", 11),
-        ("Tue", 2),
-        ("Wed", 2),
-        ("Thu", 3),
-        ("Fri", 4),
-        ("Sat", 11),
-        ("Sun", 11),
+    let one_week = get_this_week(Local::today()).unwrap();
+
+    let mon_str = &Weekday::Mon.to_string() as &str;
+    let tue_str = &Weekday::Tue.to_string() as &str;
+    let wed_str = &Weekday::Wed.to_string() as &str;
+    let thu_str = &Weekday::Thu.to_string() as &str;
+    let fri_str = &Weekday::Fri.to_string() as &str;
+    let sat_str = &Weekday::Sat.to_string() as &str;
+    let sun_str = &Weekday::Sun.to_string() as &str;
+
+    let one_week_str = vec![
+        mon_str, tue_str, wed_str, thu_str, fri_str, sat_str, sun_str,
     ];
 
-    let chart_yearly = BarChart::default()
-        .block(block_yearly)
-        .data(&weekly)
+    let one_week_pomodoro_count: Vec<u64> = one_week
+        .iter()
+        .map(|date| {
+            app.task_log
+                .iter()
+                .filter(|log| {
+                    Local
+                        .datetime_from_str(&log.date, DATE_FORMAT)
+                        .unwrap()
+                        .date()
+                        .day()
+                        == date.day()
+                })
+                .count() as u64
+        })
+        .collect();
+
+    let one_week_data: Vec<(&str, u64)> = one_week_str
+        .into_iter()
+        .zip(one_week_pomodoro_count)
+        .collect();
+
+    let chart_weekly = BarChart::default()
+        .block(block_weekly)
+        .data(&one_week_data)
         .bar_width(5)
         .bar_style(Style::default().fg(Color::LightRed))
         .bar_gap(5);
-    f.render_widget(chart_yearly, chunks[0]);
+    f.render_widget(chart_weekly, chunks[0]);
 }
