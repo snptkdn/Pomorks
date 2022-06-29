@@ -98,7 +98,11 @@ where
     B: Backend,
 {
     let chunks = Layout::default()
-        .constraints([Constraint::Percentage(100)])
+        .constraints([
+            Constraint::Percentage(40),
+            Constraint::Percentage(30),
+            Constraint::Percentage(30),
+        ])
         .direction(Direction::Horizontal)
         .split(area);
 
@@ -109,11 +113,10 @@ where
         }
     };
 
-    let todos: Vec<ListItem> = app
+    let todos_title: Vec<ListItem> = app
         .todos
         .items
         .iter()
-        // format display
         .map(|todo| {
             ListItem::new(vec![Spans::from(Span::styled(
                 format!("{}", todo.title),
@@ -122,11 +125,50 @@ where
         })
         .collect();
 
-    let todos = List::new(todos)
-        .block(Block::default().borders(Borders::ALL).title("Todo"))
+    let todos_tag: Vec<ListItem> = app
+        .todos
+        .items
+        .iter()
+        .map(|todo| {
+            ListItem::new(vec![Spans::from(Span::styled(
+                format!("{}", todo.tag),
+                get_style(is_selected(todo), todo.finished),
+            ))])
+        })
+        .collect();
+
+    let todos_project: Vec<ListItem> = app
+        .todos
+        .items
+        .iter()
+        .map(|todo| {
+            ListItem::new(vec![Spans::from(Span::styled(
+                format!("{}", todo.tag),
+                get_style(is_selected(todo), todo.finished),
+            ))])
+        })
+        .collect();
+
+    let todos_title = List::new(todos_title)
+        .block(
+            Block::default()
+                .borders(Borders::LEFT | Borders::TOP | Borders::BOTTOM)
+                .title("Todo"),
+        )
         .highlight_style(Style::default().fg(Color::Red))
         .highlight_symbol("> ");
-    f.render_stateful_widget(todos, chunks[0], &mut app.todos.state);
+
+    let todos_tag = List::new(todos_tag)
+        .block(Block::default().borders(Borders::TOP | Borders::BOTTOM))
+        .highlight_style(Style::default().fg(Color::Red));
+
+    let todos_project = List::new(todos_project)
+        .block(Block::default().borders(Borders::RIGHT | Borders::TOP | Borders::BOTTOM))
+        .highlight_style(Style::default().fg(Color::Red));
+
+    f.render_stateful_widget(todos_title, chunks[0], &mut app.todos.state);
+    f.render_stateful_widget(todos_tag, chunks[1], &mut app.todos.state);
+    f.render_stateful_widget(todos_project, chunks[2], &mut app.todos.state);
 }
 
 fn get_style(is_selected: bool, is_finished: bool) -> Style {
