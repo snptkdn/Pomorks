@@ -1,8 +1,6 @@
 on:
-  push:
-    branches: [ "develop", "master" ]
   pull_request:
-    branches: [ "develop", "master" ]
+    branches: [ "master" ]
 
 
 name: Continuous integration
