@@ -117,16 +117,7 @@ where
         .map(|todo| {
             ListItem::new(vec![Spans::from(Span::styled(
                 format!("{}", todo.title),
-                match (is_selected(todo), todo.finished) {
-                    (true, true) => Style::default()
-                        .fg(Color::Green)
-                        .add_modifier(Modifier::CROSSED_OUT),
-                    (true, false) => Style::default().fg(Color::Green),
-                    (false, true) => Style::default()
-                        .fg(Color::DarkGray)
-                        .add_modifier(Modifier::CROSSED_OUT),
-                    (false, false) => Style::default(),
-                },
+                get_style(is_selected(todo), todo.finished),
             ))])
         })
         .collect();
@@ -136,6 +127,19 @@ where
         .highlight_style(Style::default().fg(Color::Red))
         .highlight_symbol("> ");
     f.render_stateful_widget(todos, chunks[0], &mut app.todos.state);
+}
+
+fn get_style(is_selected: bool, is_finished: bool) -> Style {
+    match (is_selected, is_finished) {
+        (true, true) => Style::default()
+            .fg(Color::Green)
+            .add_modifier(Modifier::CROSSED_OUT),
+        (true, false) => Style::default().fg(Color::Green),
+        (false, true) => Style::default()
+            .fg(Color::DarkGray)
+            .add_modifier(Modifier::CROSSED_OUT),
+        (false, false) => Style::default(),
+    }
 }
 
 fn draw_selected_task_detail<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
