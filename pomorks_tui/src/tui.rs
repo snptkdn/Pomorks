@@ -1,6 +1,7 @@
-use crate::app::{App, State};
+use crate::app::App;
 use crate::ui;
 use anyhow::{anyhow, Result};
+use chrono::prelude::*;
 use crossterm::{
     event::{
         self, DisableMouseCapture, EnableMouseCapture, Event as CEvent, KeyCode, KeyModifiers,
@@ -8,6 +9,8 @@ use crossterm::{
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
+use pomorks_data_manage::data_manage_trait::TaskLogJson;
+use pomorks_data_manage::todo::State;
 use pomorks_data_manage::todo::TodoItem;
 use pomorks_data_manage::todo::TodoList;
 use std::{
@@ -29,6 +32,9 @@ pub enum UpdateInfo {
     CountIncrement(TodoItem, ShouldGoNextState),
     AddNewTodo(TodoItem, ShouldGoNextState),
     ChangeFinishStatus(TodoItem, ShouldGoNextState),
+    ArchiveFinishedTodo(ShouldGoNextState),
+    StartTodo(DateTime<Local>, String, State),
+    MovePrevState(),
     MoveNextState(),
 }
 
@@ -45,6 +51,10 @@ pub fn launch_tui(
     todo_list: &mut TodoList,
     state: &State,
     status: &String,
+    id: &Option<String>,
+    start_time: &Option<DateTime<Local>>,
+    todays_executed_count: i64,
+    task_log: &Vec<TaskLogJson>,
 ) -> Result<Option<UpdateInfo>> {
     let cli: Cli = Cli {
         tick_rate: 1000,
@@ -95,6 +105,10 @@ pub fn launch_tui(
         &todo_list,
         state,
         status.clone(),
+        id,
+        start_time,
+        todays_executed_count,
+        task_log,
     );
 
     terminal.clear()?;
@@ -121,6 +135,7 @@ pub fn launch_tui(
                     }
                     KeyCode::Delete => app.on_delete(),
                     KeyCode::Backspace => app.on_delete(),
+                    KeyCode::Tab => app.on_change_tab(),
                     KeyCode::Esc => {
                         disable_raw_mode()?;
                         execute!(
