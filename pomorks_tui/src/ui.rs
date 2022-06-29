@@ -3,31 +3,24 @@ use crate::date_manage::{get_this_month, get_this_week};
 use chrono::prelude::*;
 use num_traits::FromPrimitive;
 use pomorks_data_manage::data_manage_json::DATE_FORMAT;
+use pomorks_data_manage::todo::TodoItem;
 use pomorks_data_manage::todo::{State, ONE_MINUTE};
-use pomorks_data_manage::todo::{TodoItem, TodoList};
-use std::borrow::Cow;
 use std::cmp::min;
-use std::collections::VecDeque;
-use std::fs::{read, read_to_string};
 use std::ops::Div;
-use std::str::FromStr;
-use std::string;
 use tui::{
     backend::Backend,
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Span, Spans},
-    widgets::{
-        BarChart, Block, Borders, Chart, Dataset, Gauge, List, ListItem, Paragraph, Tabs, Wrap,
-    },
+    widgets::{BarChart, Block, Borders, Gauge, List, ListItem, Paragraph, Wrap},
     Frame,
 };
 
-pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App, todo_list: &TodoList) {
+pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     let chunks = Layout::default()
         .constraints([Constraint::Length(3), Constraint::Min(0)].as_ref())
         .split(f.size());
-    draw_title(f, app, chunks[0]);
+    draw_title(f, chunks[0]);
     match app.selected_tab {
         Tab::Main => {
             let chunks = Layout::default()
@@ -53,7 +46,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App, todo_list: &TodoList) {
 }
 
 // タイトルの描画
-fn draw_title<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect)
+fn draw_title<B: Backend>(f: &mut Frame<B>, area: Rect)
 where
     B: Backend,
 {
@@ -285,7 +278,7 @@ where
         0
     };
 
-    let remaind_time = (app.limit_time as i64 - progressed_time);
+    let remaind_time = app.limit_time as i64 - progressed_time;
 
     let timer = Spans::from(vec![Span::styled(
         format!(
