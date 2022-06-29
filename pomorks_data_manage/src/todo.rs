@@ -27,7 +27,7 @@ impl TodoList {
         }
     }
 
-    pub fn delete_todo(&mut self, todo: TodoItem) -> Result<()> {
+    pub fn delete_todo(&mut self, todo: &TodoItem) -> Result<()> {
         match self.todo_list.remove(&todo.id) {
             Some(_) => Ok(()),
             None => Err(anyhow!("selected todo is not exist.")),
