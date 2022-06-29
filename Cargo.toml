@@ -1,8 +1,2 @@
-[package]
-name = "Pomorks"
-version = "0.2.0"
-edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
+[workspace]
+members = ["pomorks_data_manage", "pomorks_gui/src-tauri", "pomorks_tui"]
