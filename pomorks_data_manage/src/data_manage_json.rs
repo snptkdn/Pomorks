@@ -1,12 +1,11 @@
 use crate::data_manage_trait::{DataManage, TaskLogJson};
 use crate::todo::*;
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result};
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
-use std::fs::{File, OpenOptions};
-use std::io::{self, BufRead, BufReader, Read, Write};
-use std::path::Path;
-use std::{env, fs, vec};
+use std::fs;
+use std::fs::File;
+use std::io::Write;
 pub const DATE_FORMAT: &str = "%Y/%m/%d %H:%M:%S%Z";
 
 pub struct DataManageJson {}

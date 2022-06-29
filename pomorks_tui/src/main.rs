@@ -6,8 +6,6 @@ mod tui;
 mod ui;
 use anyhow::Result;
 use chrono::prelude::*;
-use core::panic;
-use std::task;
 
 use pomorks_data_manage::data_manage_json::{self, DataManageJson};
 use pomorks_data_manage::data_manage_trait::DataManage;

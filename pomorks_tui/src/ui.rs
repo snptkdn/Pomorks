@@ -5,21 +5,14 @@ use num_traits::FromPrimitive;
 use pomorks_data_manage::data_manage_json::DATE_FORMAT;
 use pomorks_data_manage::todo::{State, ONE_MINUTE};
 use pomorks_data_manage::todo::{TodoItem, TodoList};
-use std::borrow::Cow;
 use std::cmp::min;
-use std::collections::VecDeque;
-use std::fs::{read, read_to_string};
 use std::ops::Div;
-use std::str::FromStr;
-use std::string;
 use tui::{
     backend::Backend,
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Span, Spans},
-    widgets::{
-        BarChart, Block, Borders, Chart, Dataset, Gauge, List, ListItem, Paragraph, Tabs, Wrap,
-    },
+    widgets::{BarChart, Block, Borders, Gauge, List, ListItem, Paragraph, Wrap},
     Frame,
 };
 
