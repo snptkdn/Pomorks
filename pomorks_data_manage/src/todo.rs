@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, fmt};
+use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TodoList {
@@ -113,16 +113,6 @@ impl TodoItem {
             finished: false,
             detail: String::new(),
         })
-    }
-}
-
-impl fmt::Display for TodoItem {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "{:<20}|{:<10}|{:<10}",
-            self.title, self.tag, self.project
-        )
     }
 }
 
