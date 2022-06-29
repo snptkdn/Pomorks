@@ -1,7 +1,8 @@
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Error, Result};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::str::FromStr;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TodoList {
@@ -20,7 +21,8 @@ impl TodoList {
             Some(_) => Err(anyhow!("id is duplicated.")),
             None => {
                 self.todo_list.entry(todo.id.clone()).or_insert(todo);
-                return Ok(());
+
+                Ok(())
             }
         }
     }
@@ -50,6 +52,12 @@ impl TodoList {
             .drain_filter(|_id, todo| todo.finished)
             .map(|(_, v)| v)
             .collect()
+    }
+}
+
+impl Default for TodoList {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -87,9 +95,12 @@ impl TodoItem {
             detail,
         }
     }
+}
 
-    pub fn from_str(str: &String) -> Result<Self> {
-        let spl: Vec<&str> = str.split(" ").collect();
+impl FromStr for TodoItem {
+    type Err = Error;
+    fn from_str(str: &str) -> Result<Self> {
+        let spl: Vec<&str> = str.split(' ').collect();
 
         if spl.len() != 4 {
             return Err(anyhow!("Todo String Parse Error."));
@@ -151,8 +162,8 @@ impl State {
     pub fn get_state_name(state: &Self) -> String {
         match state {
             State::WORK(work_count) => format!("WORK_{}", work_count),
-            State::BREAK(_) => format!("BREAK"),
-            State::LUNCH(_) => format!("LUNCH"),
+            State::BREAK(_) => ("BREAK").to_string(),
+            State::LUNCH(_) => ("LUNCH").to_string(),
         }
     }
 
