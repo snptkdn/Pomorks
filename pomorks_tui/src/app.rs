@@ -180,9 +180,6 @@ impl<'a> App<'a> {
                 'k' => {
                     self.on_up();
                 }
-                'c' => {
-                    self.on_enter();
-                }
                 'l' => {
                     return self.on_next_state();
                 }
@@ -223,7 +220,7 @@ impl<'a> App<'a> {
 
         if let Some(start) = self.start_time {
             if (Local::now() - start).num_seconds() as i64 >= self.limit_time as i64 {
-                send_notification(self.state);
+                send_notification(self.state).expect("can't send notification.");
 
                 return match &self.todo_focus {
                     // TODO!:このCloneは微妙。Lifetime付けたいが、、、
