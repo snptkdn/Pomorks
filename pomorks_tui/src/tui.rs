@@ -49,7 +49,7 @@ struct Cli {
 pub fn launch_tui(
     todo_list: &mut TodoList,
     state: &State,
-    status: &String,
+    status: &str,
     id: &Option<String>,
     start_time: &Option<DateTime<Local>>,
     todays_executed_count: i64,
@@ -103,7 +103,7 @@ pub fn launch_tui(
         cli.enhanced_graphics,
         todo_list,
         state,
-        status.clone(),
+        status.to_owned(),
         id,
         start_time,
         todays_executed_count,

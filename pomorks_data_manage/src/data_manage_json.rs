@@ -62,7 +62,7 @@ impl DataManage for DataManageJson {
         Ok(())
     }
 
-    fn write_task_dealing(id: &String, start_time: &DateTime<Local>, state: &State) -> Result<()> {
+    fn write_task_dealing(id: &str, start_time: &DateTime<Local>, state: &State) -> Result<()> {
         let task_dealing = TaskDealing {
             id: Some(id.to_string()),
             date: Some(*start_time),
@@ -100,7 +100,7 @@ impl DataManage for DataManageJson {
         Ok(())
     }
 
-    fn add_task_log(id: &String, date: &DateTime<Local>) -> Result<()> {
+    fn add_task_log(id: &str, date: &DateTime<Local>) -> Result<()> {
         let task_log_json = match File::open("task_log.json") {
             Ok(file) => file,
             Err(_) => File::create("task_log.json").context("can't create file.")?,

@@ -112,7 +112,7 @@ where
         .iter()
         .map(|todo| {
             ListItem::new(vec![Spans::from(Span::styled(
-                format!("{}", todo.title),
+                todo.title.to_string(),
                 get_style(is_selected(todo), todo.finished),
             ))])
         })
@@ -124,7 +124,7 @@ where
         .iter()
         .map(|todo| {
             ListItem::new(vec![Spans::from(Span::styled(
-                format!("{}", todo.tag),
+                todo.tag.to_string(),
                 get_style(is_selected(todo), todo.finished),
             ))])
         })
@@ -136,7 +136,7 @@ where
         .iter()
         .map(|todo| {
             ListItem::new(vec![Spans::from(Span::styled(
-                format!("{}", todo.tag),
+                todo.tag.to_string(),
                 get_style(is_selected(todo), todo.finished),
             ))])
         })
@@ -229,7 +229,7 @@ where
                         .fg(Color::Gray),
                 )]),
                 Spans::from(vec![Span::styled(
-                    format!("{}", app.todos.items[ind].detail),
+                    app.todos.items[ind].detail.to_string(),
                     Style::default()
                         .add_modifier(Modifier::BOLD)
                         .fg(Color::Gray),
@@ -581,10 +581,12 @@ where
 {
     let block = Block::default()
         .borders(Borders::ALL)
-        .title(format!(
-            "{}",
-            Month::from_u32(Local::today().month()).unwrap().name()
-        ))
+        .title(
+            Month::from_u32(Local::today().month())
+                .unwrap()
+                .name()
+                .to_string(),
+        )
         .title_alignment(Alignment::Center);
 
     let one_month = get_this_month(Local::today()).unwrap();

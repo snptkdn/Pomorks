@@ -88,7 +88,7 @@ impl TodoItem {
         }
     }
 
-    pub fn from_str(str: &String) -> Result<Self> {
+    pub fn from_str(str: &str) -> Result<Self> {
         let spl: Vec<&str> = str.split(" ").collect();
 
         if spl.len() != 4 {
@@ -151,8 +151,8 @@ impl State {
     pub fn get_state_name(state: &Self) -> String {
         match state {
             State::WORK(work_count) => format!("WORK_{}", work_count),
-            State::BREAK(_) => format!("BREAK"),
-            State::LUNCH(_) => format!("LUNCH"),
+            State::BREAK(_) => ("BREAK").to_string(),
+            State::LUNCH(_) => ("LUNCH").to_string(),
         }
     }
 
