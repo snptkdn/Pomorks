@@ -33,7 +33,6 @@ impl TodoList {
     }
 
     pub fn insert_todo(&mut self, todo: TodoItem) -> Result<()> {
-        //TODO!:繝ｪ繧ｶ繝ｫ繝亥�ｦ逅�
         self.todo_list.insert(todo.id.clone(), todo);
 
         Ok(())
