@@ -3,31 +3,24 @@ use crate::date_manage::{get_this_month, get_this_week};
 use chrono::prelude::*;
 use num_traits::FromPrimitive;
 use pomorks_data_manage::data_manage_json::DATE_FORMAT;
+use pomorks_data_manage::todo::TodoItem;
 use pomorks_data_manage::todo::{State, ONE_MINUTE};
-use pomorks_data_manage::todo::{TodoItem, TodoList};
-use std::borrow::Cow;
 use std::cmp::min;
-use std::collections::VecDeque;
-use std::fs::{read, read_to_string};
 use std::ops::Div;
-use std::str::FromStr;
-use std::string;
 use tui::{
     backend::Backend,
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Span, Spans},
-    widgets::{
-        BarChart, Block, Borders, Chart, Dataset, Gauge, List, ListItem, Paragraph, Tabs, Wrap,
-    },
+    widgets::{BarChart, Block, Borders, Gauge, List, ListItem, Paragraph, Wrap},
     Frame,
 };
 
-pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App, todo_list: &TodoList) {
+pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     let chunks = Layout::default()
         .constraints([Constraint::Length(3), Constraint::Min(0)].as_ref())
         .split(f.size());
-    draw_title(f, app, chunks[0]);
+    draw_title(f, chunks[0]);
     match app.selected_tab {
         Tab::Main => {
             let chunks = Layout::default()
@@ -53,7 +46,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App, todo_list: &TodoList) {
 }
 
 // タイトルの描画
-fn draw_title<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect)
+fn draw_title<B: Backend>(f: &mut Frame<B>, area: Rect)
 where
     B: Backend,
 {
@@ -98,7 +91,11 @@ where
     B: Backend,
 {
     let chunks = Layout::default()
-        .constraints([Constraint::Percentage(100)])
+        .constraints([
+            Constraint::Percentage(40),
+            Constraint::Percentage(30),
+            Constraint::Percentage(30),
+        ])
         .direction(Direction::Horizontal)
         .split(area);
 
@@ -109,33 +106,75 @@ where
         }
     };
 
-    let todos: Vec<ListItem> = app
+    let todos_title: Vec<ListItem> = app
         .todos
         .items
         .iter()
-        // format display
         .map(|todo| {
             ListItem::new(vec![Spans::from(Span::styled(
                 format!("{}", todo.title),
-                match (is_selected(todo), todo.finished) {
-                    (true, true) => Style::default()
-                        .fg(Color::Green)
-                        .add_modifier(Modifier::CROSSED_OUT),
-                    (true, false) => Style::default().fg(Color::Green),
-                    (false, true) => Style::default()
-                        .fg(Color::DarkGray)
-                        .add_modifier(Modifier::CROSSED_OUT),
-                    (false, false) => Style::default(),
-                },
+                get_style(is_selected(todo), todo.finished),
             ))])
         })
         .collect();
 
-    let todos = List::new(todos)
-        .block(Block::default().borders(Borders::ALL).title("Todo"))
+    let todos_tag: Vec<ListItem> = app
+        .todos
+        .items
+        .iter()
+        .map(|todo| {
+            ListItem::new(vec![Spans::from(Span::styled(
+                format!("{}", todo.tag),
+                get_style(is_selected(todo), todo.finished),
+            ))])
+        })
+        .collect();
+
+    let todos_project: Vec<ListItem> = app
+        .todos
+        .items
+        .iter()
+        .map(|todo| {
+            ListItem::new(vec![Spans::from(Span::styled(
+                format!("{}", todo.tag),
+                get_style(is_selected(todo), todo.finished),
+            ))])
+        })
+        .collect();
+
+    let todos_title = List::new(todos_title)
+        .block(
+            Block::default()
+                .borders(Borders::LEFT | Borders::TOP | Borders::BOTTOM)
+                .title("Todo"),
+        )
         .highlight_style(Style::default().fg(Color::Red))
         .highlight_symbol("> ");
-    f.render_stateful_widget(todos, chunks[0], &mut app.todos.state);
+
+    let todos_tag = List::new(todos_tag)
+        .block(Block::default().borders(Borders::TOP | Borders::BOTTOM))
+        .highlight_style(Style::default().fg(Color::Red));
+
+    let todos_project = List::new(todos_project)
+        .block(Block::default().borders(Borders::RIGHT | Borders::TOP | Borders::BOTTOM))
+        .highlight_style(Style::default().fg(Color::Red));
+
+    f.render_stateful_widget(todos_title, chunks[0], &mut app.todos.state);
+    f.render_stateful_widget(todos_tag, chunks[1], &mut app.todos.state);
+    f.render_stateful_widget(todos_project, chunks[2], &mut app.todos.state);
+}
+
+fn get_style(is_selected: bool, is_finished: bool) -> Style {
+    match (is_selected, is_finished) {
+        (true, true) => Style::default()
+            .fg(Color::Green)
+            .add_modifier(Modifier::CROSSED_OUT),
+        (true, false) => Style::default().fg(Color::Green),
+        (false, true) => Style::default()
+            .fg(Color::DarkGray)
+            .add_modifier(Modifier::CROSSED_OUT),
+        (false, false) => Style::default(),
+    }
 }
 
 fn draw_selected_task_detail<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
@@ -239,7 +278,7 @@ where
         0
     };
 
-    let remaind_time = (app.limit_time as i64 - progressed_time);
+    let remaind_time = app.limit_time as i64 - progressed_time;
 
     let timer = Spans::from(vec![Span::styled(
         format!(

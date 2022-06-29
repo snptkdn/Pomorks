@@ -1,6 +1,6 @@
 use crate::app::App;
 use crate::ui;
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use chrono::prelude::*;
 use crossterm::{
     event::{
@@ -14,9 +14,8 @@ use pomorks_data_manage::todo::State;
 use pomorks_data_manage::todo::TodoItem;
 use pomorks_data_manage::todo::TodoList;
 use std::{
-    error::Error,
     io::stdout,
-    sync::mpsc::{self, Receiver, Sender},
+    sync::mpsc::{self},
     thread,
     time::{Duration, Instant},
 };
@@ -84,14 +83,14 @@ pub fn launch_tui(
             if event::poll(timeout).unwrap() {
                 if let CEvent::Key(key) = event::read().unwrap() {
                     match tx.send(Event::Input(key)) {
-                        Err(e) => break,
+                        Err(_) => break,
                         _ => (),
                     }
                 }
             }
             if last_tick.elapsed() >= tick_rate {
                 match tx.send(Event::Tick) {
-                    Err(e) => break,
+                    Err(_) => break,
                     _ => {}
                 }
                 last_tick = Instant::now();
@@ -114,7 +113,7 @@ pub fn launch_tui(
     terminal.clear()?;
 
     loop {
-        terminal.draw(|f| ui::draw(f, &mut app, &todo_list))?;
+        terminal.draw(|f| ui::draw(f, &mut app))?;
         match rx.recv()? {
             Event::Input(event) => match event.modifiers {
                 KeyModifiers::NONE => match event.code {
