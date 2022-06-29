@@ -5,6 +5,7 @@ use anyhow::Result;
 use chrono::prelude::*;
 use pomorks_data_manage::data_manage_trait::TaskLogJson;
 use pomorks_data_manage::todo::{State, TodoItem, TodoList};
+use std::str::FromStr;
 
 pub enum Tab {
     Main,
@@ -40,6 +41,7 @@ pub struct App<'a> {
     pub task_log: &'a Vec<TaskLogJson>,
 }
 
+#[allow(clippy::too_many_arguments)]
 impl<'a> App<'a> {
     pub fn new(
         title: &'a str,
@@ -58,11 +60,7 @@ impl<'a> App<'a> {
             show_add_todo: false,
             show_chart: false,
             progress: 0.0,
-            start_time: if let Some(start_time) = start_time {
-                Some(*start_time)
-            } else {
-                None
-            },
+            start_time: *start_time,
             limit_time: State::get_limit_time(state),
             on_progress: false,
             state,

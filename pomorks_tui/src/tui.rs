@@ -49,7 +49,7 @@ struct Cli {
 pub fn launch_tui(
     todo_list: &mut TodoList,
     state: &State,
-    status: &String,
+    status: &str,
     id: &Option<String>,
     start_time: &Option<DateTime<Local>>,
     todays_executed_count: i64,
@@ -82,16 +82,14 @@ pub fn launch_tui(
                 .unwrap_or_else(|| Duration::from_secs(0));
             if event::poll(timeout).unwrap() {
                 if let CEvent::Key(key) = event::read().unwrap() {
-                    match tx.send(Event::Input(key)) {
-                        Err(_) => break,
-                        _ => (),
+                    if tx.send(Event::Input(key)).is_err() {
+                        break;
                     }
                 }
             }
             if last_tick.elapsed() >= tick_rate {
-                match tx.send(Event::Tick) {
-                    Err(_) => break,
-                    _ => {}
+                if tx.send(Event::Tick).is_err() {
+                    break;
                 }
                 last_tick = Instant::now();
             }
@@ -101,9 +99,9 @@ pub fn launch_tui(
     let mut app = App::new(
         "Crossterm Demo",
         cli.enhanced_graphics,
-        &todo_list,
+        todo_list,
         state,
-        status.clone(),
+        status.to_owned(),
         id,
         start_time,
         todays_executed_count,
@@ -115,42 +113,41 @@ pub fn launch_tui(
     loop {
         terminal.draw(|f| ui::draw(f, &mut app))?;
         match rx.recv()? {
-            Event::Input(event) => match event.modifiers {
-                KeyModifiers::NONE => match event.code {
-                    KeyCode::Char(c) => match app.on_key(c, terminal.get_cursor().unwrap())? {
-                        Some(info) => return Ok(Some(info)),
-                        None => (),
-                    },
-                    KeyCode::Left => app.on_left(),
-                    KeyCode::Up => app.on_up(),
-                    KeyCode::Right => app.on_right(),
-                    KeyCode::Down => app.on_down(),
-                    KeyCode::Enter => {
-                        let res = app.on_enter()?;
-                        match res {
+            Event::Input(event) => {
+                if event.modifiers == KeyModifiers::NONE {
+                    match event.code {
+                        KeyCode::Char(c) => match app.on_key(c, terminal.get_cursor().unwrap())? {
                             Some(info) => return Ok(Some(info)),
                             None => (),
+                        },
+                        KeyCode::Left => app.on_left(),
+                        KeyCode::Up => app.on_up(),
+                        KeyCode::Right => app.on_right(),
+                        KeyCode::Down => app.on_down(),
+                        KeyCode::Enter => {
+                            let res = app.on_enter()?;
+                            match res {
+                                Some(info) => return Ok(Some(info)),
+                                None => (),
+                            }
                         }
+                        KeyCode::Delete => app.on_delete(),
+                        KeyCode::Backspace => app.on_delete(),
+                        KeyCode::Tab => app.on_change_tab(),
+                        KeyCode::Esc => {
+                            disable_raw_mode()?;
+                            execute!(
+                                terminal.backend_mut(),
+                                LeaveAlternateScreen,
+                                DisableMouseCapture
+                            )?;
+                            terminal.show_cursor()?;
+                            return Ok(None);
+                        }
+                        _ => {}
                     }
-                    KeyCode::Delete => app.on_delete(),
-                    KeyCode::Backspace => app.on_delete(),
-                    KeyCode::Tab => app.on_change_tab(),
-                    KeyCode::Esc => {
-                        disable_raw_mode()?;
-                        execute!(
-                            terminal.backend_mut(),
-                            LeaveAlternateScreen,
-                            DisableMouseCapture
-                        )?;
-                        terminal.show_cursor()?;
-                        return Ok(None);
-                    }
-                    _ => {}
-                },
-                _ => match event {
-                    _ => {}
-                },
-            },
+                }
+            }
             Event::Tick => {
                 if let Some(info) = app.on_tick() {
                     return Ok(Some(info));

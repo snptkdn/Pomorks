@@ -55,7 +55,7 @@ checksum = "bb07d2053ccdbe10e2af2995a2f116c1330396493dc1269f6a91d0ae82e19704"
 
 [[package]]
 name = "app"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "serde",
  "serde_json",
@@ -2089,7 +2089,7 @@ dependencies = [
 
 [[package]]
 name = "pomorks_data_manage"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "anyhow",
  "chrono",
@@ -2100,7 +2100,7 @@ dependencies = [
 
 [[package]]
 name = "pomorks_tui"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "anyhow",
  "chrono",
