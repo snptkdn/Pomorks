@@ -278,7 +278,7 @@ where
         0
     };
 
-    let remaind_time = (app.limit_time as i64 - progressed_time);
+    let remaind_time = app.limit_time as i64 - progressed_time;
 
     let timer = Spans::from(vec![Span::styled(
         format!(
