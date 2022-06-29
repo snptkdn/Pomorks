@@ -109,7 +109,7 @@ fn main() -> Result<()> {
         }
     }
 
-    if let None = task_dealing.date {
+    if task_dealing.date.is_none() {
         data_manage_json::DataManageJson::delete_task_dealing()?;
     }
     DataManageJson::write_all_todo(todo_list)?;
