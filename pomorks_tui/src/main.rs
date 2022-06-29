@@ -4,6 +4,7 @@ mod notifications;
 mod statefull_list;
 mod tui;
 mod ui;
+
 use anyhow::Result;
 use chrono::prelude::*;
 
@@ -20,11 +21,10 @@ fn main() -> Result<()> {
     println!("{:?}", todo_list);
 
     let mut status = String::new();
-    let (mut start_time, mut id, state_opt) =
-        data_manage_json::DataManageJson::read_task_dealing()?;
+    let mut task_dealing = data_manage_json::DataManageJson::read_task_dealing()?;
 
     let mut state = State::WORK(1);
-    if let Some(state_first) = state_opt {
+    if let Some(state_first) = task_dealing.state {
         state = state_first;
     }
 
@@ -38,8 +38,8 @@ fn main() -> Result<()> {
             &mut todo_list,
             &state,
             &status,
-            &id,
-            &start_time,
+            &task_dealing.id,
+            &task_dealing.date,
             todays_executed_count,
             &task_log,
         ) {
@@ -53,7 +53,7 @@ fn main() -> Result<()> {
                         if is_go_next_state {
                             state = State::get_next_state(&state);
                         }
-                        start_time = None;
+                        task_dealing.date = None;
                         data_manage_json::DataManageJson::add_task_log(&todo.id, &Local::now())?;
                         todays_executed_count =
                             data_manage_json::DataManageJson::get_executed_count_by_day(
@@ -77,11 +77,11 @@ fn main() -> Result<()> {
                     }
                     tui::UpdateInfo::MoveNextState() => {
                         state = State::get_next_state(&state);
-                        start_time = None;
+                        task_dealing.date = None;
                     }
                     tui::UpdateInfo::MovePrevState() => {
                         state = State::get_prev_state(&state);
-                        start_time = None;
+                        task_dealing.date = None;
                     }
                     tui::UpdateInfo::ArchiveFinishedTodo(is_go_next_state) => {
                         let finished_todo = todo_list.drain_finished_todo();
@@ -96,8 +96,8 @@ fn main() -> Result<()> {
                             &_start_time,
                             &_state,
                         )?;
-                        id = Some(_id.clone());
-                        start_time = Some(_start_time);
+                        task_dealing.id = Some(_id.clone());
+                        task_dealing.date = Some(_start_time);
                         state = _state;
                     }
                 },
@@ -109,7 +109,7 @@ fn main() -> Result<()> {
         }
     }
 
-    if let None = start_time {
+    if let None = task_dealing.date {
         data_manage_json::DataManageJson::delete_task_dealing()?;
     }
     DataManageJson::write_all_todo(todo_list)?;

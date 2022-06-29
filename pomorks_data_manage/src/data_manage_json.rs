@@ -1,21 +1,13 @@
-use crate::data_manage_trait::{DataManage, TaskLogJson};
+use crate::data_manage_trait::{DataManage, TaskDealing, TaskLogJson};
 use crate::todo::*;
 use anyhow::{Context, Result};
 use chrono::prelude::*;
-use serde::{Deserialize, Serialize};
 use std::fs;
 use std::fs::File;
 use std::io::Write;
 pub const DATE_FORMAT: &str = "%Y/%m/%d %H:%M:%S%Z";
 
 pub struct DataManageJson {}
-
-#[derive(Serialize, Deserialize)]
-struct TaskDealing {
-    id: Option<String>,
-    date: Option<DateTime<Local>>,
-    state: Option<State>,
-}
 
 impl DataManage for DataManageJson {
     fn write_all_todo(todo_list: TodoList) -> Result<()> {
@@ -78,7 +70,7 @@ impl DataManage for DataManageJson {
         Ok(())
     }
 
-    fn read_task_dealing() -> Result<(Option<DateTime<Local>>, Option<String>, Option<State>)> {
+    fn read_task_dealing() -> Result<TaskDealing> {
         let task_dealing_json = match File::open("dealing_task.json") {
             Ok(file) => file,
             Err(_) => File::create("dealing_task.json").context("can't create file.")?,
@@ -92,7 +84,11 @@ impl DataManage for DataManageJson {
             },
         };
 
-        Ok((task_dealing.date, task_dealing.id, task_dealing.state))
+        Ok(TaskDealing {
+            date: task_dealing.date,
+            id: task_dealing.id,
+            state: task_dealing.state,
+        })
     }
 
     fn delete_task_dealing() -> Result<()> {
