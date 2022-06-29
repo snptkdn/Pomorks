@@ -3,19 +3,14 @@ use std::collections::VecDeque;
 use anyhow::Result;
 use chrono::{prelude::*, Duration};
 fn get_yesterday(date: Date<Local>) -> Result<Date<Local>> {
-    let one_day = Duration::days(1);
-
     Ok(date - Duration::days(1))
 }
 
 fn get_nextday(date: Date<Local>) -> Result<Date<Local>> {
-    let one_day = Duration::days(1);
-
     Ok(date + Duration::days(1))
 }
 
 pub fn get_this_week(date: Date<Local>) -> Result<Vec<Date<Local>>> {
-    let weekday = date.weekday();
     let num_from_monday = date.weekday().num_days_from_monday() as i64;
 
     let duration_from_monday = Duration::days(num_from_monday);

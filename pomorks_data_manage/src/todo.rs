@@ -27,7 +27,7 @@ impl TodoList {
 
     pub fn delete_todo(&mut self, todo: TodoItem) -> Result<()> {
         match self.todo_list.remove(&todo.id) {
-            Some(x) => Ok(()),
+            Some(_) => Ok(()),
             None => Err(anyhow!("selected todo is not exist.")),
         }
     }
@@ -48,7 +48,7 @@ impl TodoList {
     pub fn drain_finished_todo(&mut self) -> Vec<TodoItem> {
         self.todo_list
             .drain_filter(|_id, todo| todo.finished)
-            .map(|(k, v)| v)
+            .map(|(_, v)| v)
             .collect()
     }
 }
