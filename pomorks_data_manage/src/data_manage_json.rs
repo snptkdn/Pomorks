@@ -65,7 +65,7 @@ impl DataManage for DataManageJson {
     fn write_task_dealing(id: &String, start_time: &DateTime<Local>, state: &State) -> Result<()> {
         let task_dealing = TaskDealing {
             id: Some(id.to_string()),
-            date: Some(start_time.clone()),
+            date: Some(*start_time),
             state: Some(state.clone()),
         };
 

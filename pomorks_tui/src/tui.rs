@@ -101,7 +101,7 @@ pub fn launch_tui(
     let mut app = App::new(
         "Crossterm Demo",
         cli.enhanced_graphics,
-        &todo_list,
+        todo_list,
         state,
         status.clone(),
         id,

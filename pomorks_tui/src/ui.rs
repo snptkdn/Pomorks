@@ -357,7 +357,7 @@ where
             Style::default().add_modifier(Modifier::BOLD),
         )]),
         Spans::from(vec![Span::styled(
-            format!("Process: {}", State::get_state_name(&app.state)),
+            format!("Process: {}", State::get_state_name(app.state)),
             Style::default()
                 .add_modifier(Modifier::BOLD)
                 .fg(Color::Gray),
