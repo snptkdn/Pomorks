@@ -1,0 +1,2 @@
+[workspace]
+members = ["pomorks_data_manage", "pomorks_gui/src-tauri", "pomorks_tui"]
