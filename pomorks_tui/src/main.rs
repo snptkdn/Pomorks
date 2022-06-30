@@ -13,7 +13,7 @@ use pomorks_data_manage::data_manage_trait::DataManage;
 use pomorks_data_manage::todo::{State, TodoItem, TodoList};
 
 fn main() -> Result<()> {
-    let data_manager = &DataManageJson {};
+    let data_manager: &dyn DataManage = &DataManageJson {};
     let mut todo_list = match data_manager.read_all_todo()? {
         Some(todo_list) => todo_list,
         None => TodoList::new(),
