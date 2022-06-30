@@ -15,7 +15,7 @@ use pomorks_data_manage::data_manage_trait::{DataManage, TypeDataManager};
 use pomorks_data_manage::todo::{State, TodoItem, TodoList};
 
 fn main() -> Result<()> {
-    let mut selected_data_manager = input_selected_data_manager()?;
+    let selected_data_manager = input_selected_data_manager()?;
     let data_manager: &dyn DataManage = match selected_data_manager {
         TypeDataManager::DataManageJson => &DataManageJson {},
         TypeDataManager::DataManageFirebase => &DataManageFirebase {},
