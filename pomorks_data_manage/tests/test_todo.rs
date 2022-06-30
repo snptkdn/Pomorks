@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod tests {
     use pomorks_data_manage::todo::*;
+    use std::str::FromStr;
     #[test]
     fn test_add_todo() {
         let mut list = TodoList::new();
