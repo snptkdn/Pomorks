@@ -2,7 +2,7 @@ use crate::app::{App, Tab};
 use crate::date_manage::{get_this_month, get_this_week};
 use chrono::prelude::*;
 use num_traits::FromPrimitive;
-use pomorks_data_manage::data_manage_json::DATE_FORMAT;
+use pomorks_data_manage::data_manage_trait::DATE_FORMAT;
 use pomorks_data_manage::todo::TodoItem;
 use pomorks_data_manage::todo::{State, ONE_MINUTE};
 use std::cmp::min;
@@ -208,13 +208,13 @@ where
                         "Pomodoro: {}",
                         if app.todos.items[ind].executed_count < app.todos.items[ind].estimate_count
                         {
-                            "■".repeat(app.todos.items[ind].executed_count)
+                            "�?".repeat(app.todos.items[ind].executed_count)
                                 + &"□".repeat(
                                     app.todos.items[ind].estimate_count
                                         - app.todos.items[ind].executed_count,
                                 )
                         } else {
-                            "■".repeat(app.todos.items[ind].executed_count)
+                            "�?".repeat(app.todos.items[ind].executed_count)
                         }
                     ),
                     Style::default()
@@ -349,9 +349,9 @@ where
             format!(
                 "Pomodoro: {}",
                 if executed_count < estimate_count {
-                    "■".repeat(executed_count) + &"□".repeat(estimate_count - executed_count)
+                    "�?".repeat(executed_count) + &"□".repeat(estimate_count - executed_count)
                 } else {
-                    "■".repeat(executed_count)
+                    "�?".repeat(executed_count)
                 }
             ),
             Style::default().add_modifier(Modifier::BOLD),
@@ -591,7 +591,7 @@ where
 
     let one_month = get_this_month(Local::today()).unwrap();
 
-    // TODO:ここどうにかしたい。。
+    // TODO:ここど�?にかしたい。�?
     let one_month_str = [
         "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16",
         "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31",
@@ -652,7 +652,7 @@ where
         Month::November,
         Month::December,
     ];
-    // TODO:ここどうにかしたい。。
+    // TODO:ここど�?にかしたい。�?
     let one_year_str = [
         "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12",
     ];
