@@ -1,19 +1,17 @@
-use crate::data_manage_trait::{DataManage, TaskDealing, TaskLogJson};
+use crate::data_manage_trait::{DataManage, TaskDealing, TaskLogJson, DATE_FORMAT};
 use crate::todo::*;
 use anyhow::{Context, Result};
 use chrono::prelude::*;
 use std::fs;
 use std::fs::File;
 use std::io::Write;
-pub const DATE_FORMAT: &str = "%Y/%m/%d %H:%M:%S%Z";
 
 pub struct DataManageJson {}
 
 impl DataManage for DataManageJson {
-    fn write_all_todo(todo_list: TodoList) -> Result<()> {
+    fn write_all_todo(&self, todo_list: TodoList) -> Result<()> {
         let serialized = serde_json::to_string(&todo_list)?;
 
-        // TODO!: ファイル名�?�引数�?�?
         let mut file = File::create("task.json")?;
         write!(file, "{}", serialized)?;
         file.flush()?;
@@ -21,7 +19,7 @@ impl DataManage for DataManageJson {
         Ok(())
     }
 
-    fn read_all_todo() -> Result<Option<TodoList>> {
+    fn read_all_todo(&self) -> Result<Option<TodoList>> {
         let todo_list_json = match File::open("task.json") {
             Ok(file) => file,
             Err(_) => File::create("task.json").context("can't create file.")?,
@@ -34,7 +32,7 @@ impl DataManage for DataManageJson {
         Ok(Some(todo_list))
     }
 
-    fn archive_todo(mut archived_todo_list: Vec<TodoItem>) -> Result<()> {
+    fn archive_todo(&self, mut archived_todo_list: Vec<TodoItem>) -> Result<()> {
         let current_archive_json = match File::open("archive.json") {
             Ok(file) => file,
             Err(_) => File::create("archive.json")?,
@@ -54,7 +52,12 @@ impl DataManage for DataManageJson {
         Ok(())
     }
 
-    fn write_task_dealing(id: &str, start_time: &DateTime<Local>, state: &State) -> Result<()> {
+    fn write_task_dealing(
+        &self,
+        id: &str,
+        start_time: &DateTime<Local>,
+        state: &State,
+    ) -> Result<()> {
         let task_dealing = TaskDealing {
             id: Some(id.to_string()),
             date: Some(*start_time),
@@ -70,7 +73,7 @@ impl DataManage for DataManageJson {
         Ok(())
     }
 
-    fn read_task_dealing() -> Result<TaskDealing> {
+    fn read_task_dealing(&self) -> Result<TaskDealing> {
         let task_dealing_json = match File::open("dealing_task.json") {
             Ok(file) => file,
             Err(_) => File::create("dealing_task.json").context("can't create file.")?,
@@ -91,12 +94,12 @@ impl DataManage for DataManageJson {
         })
     }
 
-    fn delete_task_dealing() -> Result<()> {
+    fn delete_task_dealing(&self) -> Result<()> {
         fs::remove_file("dealing_task.json")?;
         Ok(())
     }
 
-    fn add_task_log(id: &str, date: &DateTime<Local>) -> Result<()> {
+    fn add_task_log(&self, id: &str, date: &DateTime<Local>) -> Result<()> {
         let task_log_json = match File::open("task_log.json") {
             Ok(file) => file,
             Err(_) => File::create("task_log.json").context("can't create file.")?,
@@ -121,7 +124,7 @@ impl DataManage for DataManageJson {
         Ok(())
     }
 
-    fn get_executed_count_by_day(date: &DateTime<Local>) -> Result<i64> {
+    fn get_executed_count_by_day(&self, date: &DateTime<Local>) -> Result<i64> {
         let task_log_json = File::open("task_log.json")?;
         let task_log: Vec<TaskLogJson> = serde_json::from_reader(task_log_json)?;
 
@@ -142,7 +145,7 @@ impl DataManage for DataManageJson {
         Ok(count)
     }
 
-    fn get_log_all() -> Result<Vec<TaskLogJson>> {
+    fn get_log_all(&self) -> Result<Vec<TaskLogJson>> {
         let task_log_json = File::open("task_log.json")?;
         Ok(serde_json::from_reader(task_log_json)?)
     }
