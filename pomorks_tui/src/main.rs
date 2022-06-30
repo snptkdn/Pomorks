@@ -124,7 +124,7 @@ fn input_selected_data_manager() -> Result<TypeDataManager> {
     let vec_name_and_index = TypeDataManager::get_all_type_name_and_index();
 
     vec_name_and_index.iter().for_each(|(ind, name)| {
-        println!("{}:{}", ind.to_string(), name);
+        println!("{}:{}", ind, name);
     });
 
     let mut result = String::new();

@@ -17,7 +17,7 @@ pub struct TaskDealing {
     pub state: Option<State>,
 }
 
-#[derive(Debug, PartialEq, Sequence, Clone, Copy)]
+#[derive(Debug, Eq, PartialEq, Sequence, Clone, Copy)]
 pub enum TypeDataManager {
     DataManageJson,
     DataManageFirebase,
@@ -39,11 +39,11 @@ impl TypeDataManager {
     }
 
     pub fn get_all_type_name_and_index() -> Vec<(usize, String)> {
-        let vec_type: Vec<TypeDataManager> = all::<TypeDataManager>().collect();
+        let vec_type = all::<TypeDataManager>();
         vec_type
             .into_iter()
             .enumerate()
-            .map(|(ind, type_manager)| (ind, type_manager.name().to_string()))
+            .map(|(ind, type_manager)| (ind, type_manager.name()))
             .collect()
     }
 }
