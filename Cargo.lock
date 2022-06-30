@@ -729,6 +729,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "firerust"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8ff85821e4cc01536c285593354376c700afaae7063f003b906bcd2ecdb3a56c"
+dependencies = [
+ "native-tls",
+ "serde",
+ "serde_json",
+ "url",
+]
+
+[[package]]
 name = "flate2"
 version = "1.0.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2114,6 +2126,7 @@ dependencies = [
  "anyhow",
  "chrono",
  "enum-iterator",
+ "firerust",
  "rand 0.8.5",
  "serde",
  "serde_json",

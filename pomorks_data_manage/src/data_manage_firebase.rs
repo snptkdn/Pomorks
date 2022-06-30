@@ -1,12 +1,33 @@
 use crate::data_manage_trait::{DataManage, TaskDealing, TaskLogJson};
 use crate::todo::*;
-use anyhow::{Context, Result};
+use anyhow::Result;
 use chrono::prelude::*;
-use std::fs;
+use firerust::FirebaseClient;
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::fs::File;
-use std::io::Write;
-pub const DATE_FORMAT: &str = "%Y/%m/%d %H:%M:%S%Z";
 
+#[derive(Serialize, Deserialize)]
+struct FirebaseInfo {
+    url: String,
+    api_key: String,
+}
+
+impl FirebaseInfo {
+    fn get_firebase_info() -> Result<FirebaseInfo> {
+        let info_json = File::open("firebase_info.json")?;
+        Ok(serde_json::from_reader(info_json)?)
+    }
+
+    pub fn get_client() -> Result<FirebaseClient> {
+        let info = Self::get_firebase_info()?;
+
+        let mut client = FirebaseClient::new(info.url).expect("Firebase connection is failure");
+        client.auth(info.api_key);
+
+        Ok(client)
+    }
+}
 pub struct DataManageFirebase {}
 
 impl DataManage for DataManageFirebase {
