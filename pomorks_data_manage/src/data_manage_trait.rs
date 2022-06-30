@@ -4,6 +4,7 @@ use chrono::prelude::*;
 use enum_iterator::{all, Sequence};
 use serde::{Deserialize, Serialize};
 
+pub const DATE_FORMAT: &str = "%Y/%m/%d %H:%M:%S%Z";
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TaskLogJson {
     pub id: String,
