@@ -1,11 +1,13 @@
 use crate::data_manage_trait::{DataManage, TaskDealing, TaskLogJson, DATE_FORMAT};
 use crate::todo::*;
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use chrono::prelude::*;
 use firerust::FirebaseClient;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use std::collections::HashMap;
 use std::fs::File;
+use std::vec;
 
 #[derive(Serialize, Deserialize)]
 struct FirebaseInfo {
@@ -62,15 +64,14 @@ impl DataManage for DataManageFirebase {
 
     fn archive_todo(&self, archived_todo_list: Vec<TodoItem>) -> Result<()> {
         println!("archive");
-        let client = FirebaseInfo::get_client()?;
 
-        let serialized = serde_json::to_value(&archived_todo_list)?;
-        match client.reference("/archive").update(&serialized) {
-            Ok(_) => (),
-            Err(_) => client
+        for archived in archived_todo_list.iter() {
+            let client = FirebaseInfo::get_client()?;
+            let serialized = serde_json::to_value(&archived)?;
+            client
                 .reference("/archive")
-                .set(serialized)
-                .expect("can't update archive"),
+                .set_unique(&serialized)
+                .expect("can't update archive");
         }
 
         Ok(())
@@ -147,21 +148,22 @@ impl DataManage for DataManageFirebase {
         let client = FirebaseInfo::get_client()?;
         let date = date.format(DATE_FORMAT).to_string();
 
-        let serialized = serde_json::to_value(&TaskLogJson {
+        let task_log = TaskLogJson {
             id: id.to_string(),
             date,
-        })?;
+        };
+
+        let serialized = serde_json::to_value(task_log)?;
 
         client
             .reference("/task_log")
-            .update(serialized)
+            .set_unique(serialized)
             .expect("can't update task dealing where firebase");
 
         Ok(())
     }
 
     fn get_executed_count_by_day(&self, date: &DateTime<Local>) -> Result<i64> {
-        println!("get_executed");
         let client = FirebaseInfo::get_client()?;
 
         let task_log_json: Value = client
@@ -169,11 +171,15 @@ impl DataManage for DataManageFirebase {
             .get()
             .expect("can't get task_log from firebase");
 
-        let task_log: Vec<TaskLogJson> = match serde_json::from_value(task_log_json) {
-            Ok(task_log) => task_log,
-            // TODO:名前おかしい
-            Err(_) => vec![],
-        };
+        let task_log: Vec<TaskLogJson> =
+            match serde_json::from_value::<HashMap<String, TaskLogJson>>(task_log_json) {
+                Ok(vec_task_log_with_id) => vec_task_log_with_id
+                    .iter()
+                    .map(|task_log_with_id| task_log_with_id.1.clone())
+                    .collect(),
+                // TODO:名前おかしい
+                Err(_) => vec![],
+            };
 
         let count = task_log.iter().fold(0, |acc, log| {
             let date_each = match Local.datetime_from_str(&log.date, DATE_FORMAT) {
@@ -195,15 +201,19 @@ impl DataManage for DataManageFirebase {
     fn get_log_all(&self) -> Result<Vec<TaskLogJson>> {
         println!("get_log_all");
         let client = FirebaseInfo::get_client()?;
+
         let task_log_json: Value = client
             .reference("/task_log")
             .get()
             .expect("can't get task_log from firebase");
 
-        match serde_json::from_value(task_log_json) {
-            Ok(task_log) => Ok(task_log),
+        match serde_json::from_value::<HashMap<String, TaskLogJson>>(task_log_json) {
+            Ok(vec_task_log_with_id) => Ok(vec_task_log_with_id
+                .iter()
+                .map(|task_log_with_id| task_log_with_id.1.clone())
+                .collect()),
             // TODO:名前おかしい
-            Err(e) => Ok(vec![]),
+            Err(_) => Ok(vec![]),
         }
     }
 }

@@ -5,12 +5,11 @@ use enum_iterator::{all, Sequence};
 use serde::{Deserialize, Serialize};
 
 pub const DATE_FORMAT: &str = "%Y/%m/%d %H:%M:%S%Z";
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TaskLogJson {
     pub id: String,
     pub date: String,
 }
-
 #[derive(Serialize, Deserialize)]
 pub struct TaskDealing {
     pub id: Option<String>,

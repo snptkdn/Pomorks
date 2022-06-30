@@ -2,7 +2,6 @@ use crate::data_manage_trait::{DataManage, TaskDealing, TaskLogJson, DATE_FORMAT
 use crate::todo::*;
 use anyhow::{Context, Result};
 use chrono::prelude::*;
-use serde::{Deserialize, Serialize};
 use std::fs;
 use std::fs::File;
 use std::io::Write;
