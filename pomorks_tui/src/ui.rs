@@ -136,7 +136,7 @@ where
         .iter()
         .map(|todo| {
             ListItem::new(vec![Spans::from(Span::styled(
-                todo.tag.to_string(),
+                todo.project.to_string(),
                 get_style(is_selected(todo), todo.finished),
             ))])
         })
