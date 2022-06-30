@@ -32,11 +32,31 @@ pub struct DataManageFirebase {}
 
 impl DataManage for DataManageFirebase {
     fn write_all_todo(&self, todo_list: TodoList) -> Result<()> {
-        todo!()
+        let client = FirebaseInfo::get_client()?;
+
+        let serialized = serde_json::to_string(&todo_list)?;
+        client
+            .reference("/todo_list")
+            .set(serialized)
+            .expect("can't update todo_list where firebase");
+
+        Ok(())
     }
 
     fn read_all_todo(&self) -> Result<Option<TodoList>> {
-        todo!()
+        let client = FirebaseInfo::get_client()?;
+
+        let todo_list_json: Value = client
+            .reference("/todo_list")
+            .get()
+            .expect("can't get todo_list from firebase");
+
+        let todo_list: TodoList = match serde_json::from_value(todo_list_json) {
+            Ok(todo_list) => todo_list,
+            Err(_) => TodoList::new(),
+        };
+
+        Ok(Some(todo_list))
     }
 
     fn archive_todo(&self, mut archived_todo_list: Vec<TodoItem>) -> Result<()> {
