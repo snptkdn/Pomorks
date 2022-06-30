@@ -5,15 +5,22 @@ mod statefull_list;
 mod tui;
 mod ui;
 
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use chrono::prelude::*;
+use pomorks_data_manage::data_manage_firebase::DataManageFirebase;
+use std::io;
 
 use pomorks_data_manage::data_manage_json::DataManageJson;
-use pomorks_data_manage::data_manage_trait::DataManage;
+use pomorks_data_manage::data_manage_trait::{DataManage, TypeDataManager};
 use pomorks_data_manage::todo::{State, TodoItem, TodoList};
 
 fn main() -> Result<()> {
-    let data_manager: &dyn DataManage = &DataManageJson {};
+    let mut selected_data_manager = input_selected_data_manager()?;
+    let data_manager: &dyn DataManage = match selected_data_manager {
+        TypeDataManager::DataManageJson => &DataManageJson {},
+        TypeDataManager::DataManageFirebase => &DataManageFirebase {},
+    };
+
     let mut todo_list = match data_manager.read_all_todo()? {
         Some(todo_list) => todo_list,
         None => TodoList::new(),
@@ -109,4 +116,27 @@ fn main() -> Result<()> {
     data_manager.write_all_todo(todo_list)?;
 
     Ok(())
+}
+
+fn input_selected_data_manager() -> Result<TypeDataManager> {
+    println!("Please Select DataManager");
+
+    let vec_name_and_index = TypeDataManager::get_all_type_name_and_index();
+
+    vec_name_and_index.iter().for_each(|(ind, name)| {
+        println!("{}:{}", ind.to_string(), name);
+    });
+
+    let mut result = String::new();
+
+    io::stdin()
+        .read_line(&mut result)
+        .expect("Failed to read line.");
+
+    let selected_name = &vec_name_and_index[result.trim().parse::<usize>()?];
+
+    match TypeDataManager::from_name(&selected_name.1) {
+        Some(type_manager) => Ok(type_manager),
+        None => Err(anyhow!("input number is incorrect")),
+    }
 }
