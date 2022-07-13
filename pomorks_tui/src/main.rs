@@ -58,13 +58,15 @@ fn main() -> Result<()> {
                     if UpdateInfo::should_go_next_state(&info) {
                         state = State::get_next_state(&state);
                     }
+                    if UpdateInfo::should_delete_time_stamp_of_task_start(&info) {
+                        task_dealing.date = None;
+                    }
                     match info {
                         tui::UpdateInfo::CountIncrement(todo) => {
                             todo_list.insert_todo(TodoItem {
                                 executed_count: todo.executed_count + 1,
                                 ..todo.clone()
                             })?;
-                            task_dealing.date = None;
                             data_manager.add_task_log(&todo.id, &Local::now())?;
                             todays_executed_count =
                                 data_manager.get_executed_count_by_day(&Local::now())?;
@@ -78,12 +80,9 @@ fn main() -> Result<()> {
                                 ..todo
                             })?;
                         }
-                        tui::UpdateInfo::MoveNextState() => {
-                            task_dealing.date = None;
-                        }
+                        tui::UpdateInfo::MoveNextState() => {} // ここでは何もしない(should_go_next_stateで処理)
                         tui::UpdateInfo::MovePrevState() => {
                             state = State::get_prev_state(&state);
-                            task_dealing.date = None;
                         }
                         tui::UpdateInfo::ArchiveFinishedTodo() => {
                             let finished_todo = todo_list.drain_finished_todo();

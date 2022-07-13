@@ -49,7 +49,21 @@ impl UpdateInfo {
             Self::MovePrevState() => false,
         }
     }
+
+    pub fn should_delete_time_stamp_of_task_start(info: &Self) -> bool {
+        match info {
+            Self::CountIncrement(_) => true,
+            Self::MoveNextState() => true,
+            Self::MovePrevState() => true,
+
+            Self::StartTodo(_, _, _) => false,
+            Self::AddNewTodo(_) => false,
+            Self::ChangeFinishStatus(_) => false,
+            Self::ArchiveFinishedTodo() => false,
+        }
+    }
 }
+
 /// Crossterm demo
 #[derive(Debug)]
 struct Cli {
