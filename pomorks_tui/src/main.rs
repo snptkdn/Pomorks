@@ -14,6 +14,8 @@ use pomorks_data_manage::data_manage_json::DataManageJson;
 use pomorks_data_manage::data_manage_trait::{DataManage, TypeDataManager};
 use pomorks_data_manage::todo::{State, TodoItem, TodoList};
 
+use crate::tui::UpdateInfo;
+
 fn main() -> Result<()> {
     let selected_data_manager = input_selected_data_manager()?;
     let data_manager: &dyn DataManage = match selected_data_manager {
@@ -52,15 +54,16 @@ fn main() -> Result<()> {
         ) {
             Ok(res) => match res {
                 Some(info) => {
+                    // 順序変えたいが、、、一部の関数が参照を受け付けないので現状はこれしかない
+                    if UpdateInfo::should_go_next_state(&info) {
+                        state = State::get_next_state(&state);
+                    }
                     match info {
                         tui::UpdateInfo::CountIncrement(todo) => {
                             todo_list.insert_todo(TodoItem {
                                 executed_count: todo.executed_count + 1,
                                 ..todo.clone()
                             })?;
-                            //if is_go_next_state {
-                            //state = State::get_next_state(&state);
-                            //}
                             task_dealing.date = None;
                             data_manager.add_task_log(&todo.id, &Local::now())?;
                             todays_executed_count =
@@ -68,21 +71,14 @@ fn main() -> Result<()> {
                         }
                         tui::UpdateInfo::AddNewTodo(todo) => {
                             todo_list.add_todo(todo)?;
-                            //if is_go_next_state {
-                            //state = State::get_next_state(&state);
-                            //}
                         }
                         tui::UpdateInfo::ChangeFinishStatus(todo) => {
                             todo_list.insert_todo(TodoItem {
                                 finished: !todo.finished,
                                 ..todo
                             })?;
-                            //if is_go_next_state {
-                            //state = State::get_next_state(&state);
-                            //}
                         }
                         tui::UpdateInfo::MoveNextState() => {
-                            state = State::get_next_state(&state);
                             task_dealing.date = None;
                         }
                         tui::UpdateInfo::MovePrevState() => {
@@ -92,9 +88,6 @@ fn main() -> Result<()> {
                         tui::UpdateInfo::ArchiveFinishedTodo() => {
                             let finished_todo = todo_list.drain_finished_todo();
                             data_manager.archive_todo(finished_todo)?;
-                            //if is_go_next_state {
-                            //state = State::get_next_state(&state);
-                            //}
                         }
                         tui::UpdateInfo::StartTodo(_start_time, _id, _state) => {
                             data_manager.write_task_dealing(&_id, &_start_time, &_state)?;

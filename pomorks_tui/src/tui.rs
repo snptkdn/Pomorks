@@ -36,6 +36,20 @@ pub enum UpdateInfo {
     MoveNextState(),
 }
 
+impl UpdateInfo {
+    pub fn should_go_next_state(info: &Self) -> bool {
+        match info {
+            Self::CountIncrement(_) => true,
+            Self::AddNewTodo(_) => true,
+            Self::ChangeFinishStatus(_) => true,
+            Self::ArchiveFinishedTodo() => true,
+            Self::MoveNextState() => true,
+
+            Self::StartTodo(_, _, _) => false,
+            Self::MovePrevState() => false,
+        }
+    }
+}
 /// Crossterm demo
 #[derive(Debug)]
 struct Cli {
