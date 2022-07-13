@@ -106,10 +106,9 @@ impl<'a> App<'a> {
         if self.show_add_todo {
             self.show_add_todo = false;
 
-            Ok(Some(UpdateInfo::AddNewTodo(
-                TodoItem::from_str(&self.new_todo_string)?,
-                false,
-            )))
+            Ok(Some(UpdateInfo::AddNewTodo(TodoItem::from_str(
+                &self.new_todo_string,
+            )?)))
         } else {
             self.todo_focus = match self.todos.state.selected() {
                 Some(ind) => Some(self.todos.items[ind].clone()),
@@ -149,7 +148,6 @@ impl<'a> App<'a> {
         match self.todos.state.selected() {
             Some(ind) => Ok(Some(UpdateInfo::ChangeFinishStatus(
                 self.todos.items[ind].clone(),
-                false,
             ))),
             None => Ok(None),
         }
@@ -161,7 +159,7 @@ impl<'a> App<'a> {
         } else {
             match c {
                 'b' => {
-                    return Ok(Some(UpdateInfo::ArchiveFinishedTodo(false)));
+                    return Ok(Some(UpdateInfo::ArchiveFinishedTodo()));
                 }
                 'a' => {
                     self.show_add_todo = true;
@@ -224,7 +222,7 @@ impl<'a> App<'a> {
                     // TODO!:このCloneは微妙。Lifetime付けたいが、、、
                     Some(todo) => {
                         if let State::WORK(_) = self.state {
-                            Some(UpdateInfo::CountIncrement(todo.clone(), true))
+                            Some(UpdateInfo::CountIncrement(todo.clone()))
                         } else {
                             Some(UpdateInfo::MoveNextState())
                         }

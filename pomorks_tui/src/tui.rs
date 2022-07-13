@@ -26,15 +26,42 @@ enum Event<I> {
     Tick,
 }
 
-type ShouldGoNextState = bool;
 pub enum UpdateInfo {
-    CountIncrement(TodoItem, ShouldGoNextState),
-    AddNewTodo(TodoItem, ShouldGoNextState),
-    ChangeFinishStatus(TodoItem, ShouldGoNextState),
-    ArchiveFinishedTodo(ShouldGoNextState),
+    CountIncrement(TodoItem),
+    AddNewTodo(TodoItem),
+    ChangeFinishStatus(TodoItem),
+    ArchiveFinishedTodo(),
     StartTodo(DateTime<Local>, String, State),
     MovePrevState(),
     MoveNextState(),
+}
+
+impl UpdateInfo {
+    pub fn should_go_next_state(info: &Self) -> bool {
+        match info {
+            Self::CountIncrement(_) => true,
+            Self::AddNewTodo(_) => true,
+            Self::ChangeFinishStatus(_) => true,
+            Self::ArchiveFinishedTodo() => true,
+            Self::MoveNextState() => true,
+
+            Self::StartTodo(_, _, _) => false,
+            Self::MovePrevState() => false,
+        }
+    }
+
+    pub fn should_delete_time_stamp_of_task_start(info: &Self) -> bool {
+        match info {
+            Self::CountIncrement(_) => true,
+            Self::MoveNextState() => true,
+            Self::MovePrevState() => true,
+
+            Self::StartTodo(_, _, _) => false,
+            Self::AddNewTodo(_) => false,
+            Self::ChangeFinishStatus(_) => false,
+            Self::ArchiveFinishedTodo() => false,
+        }
+    }
 }
 
 /// Crossterm demo
@@ -116,19 +143,19 @@ pub fn launch_tui(
             Event::Input(event) => {
                 if event.modifiers == KeyModifiers::NONE {
                     match event.code {
-                        KeyCode::Char(c) => match app.on_key(c, terminal.get_cursor().unwrap())? {
-                            Some(info) => return Ok(Some(info)),
-                            None => (),
-                        },
+                        KeyCode::Char(c) => {
+                            if let Some(info) = app.on_key(c, terminal.get_cursor().unwrap())? {
+                                return Ok(Some(info));
+                            }
+                        }
                         KeyCode::Left => app.on_left(),
                         KeyCode::Up => app.on_up(),
                         KeyCode::Right => app.on_right(),
                         KeyCode::Down => app.on_down(),
                         KeyCode::Enter => {
                             let res = app.on_enter()?;
-                            match res {
-                                Some(info) => return Ok(Some(info)),
-                                None => (),
+                            if let Some(info) = res {
+                                return Ok(Some(info));
                             }
                         }
                         KeyCode::Delete => app.on_delete(),
