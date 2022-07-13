@@ -26,12 +26,11 @@ enum Event<I> {
     Tick,
 }
 
-type ShouldGoNextState = bool;
 pub enum UpdateInfo {
-    CountIncrement(TodoItem, ShouldGoNextState),
-    AddNewTodo(TodoItem, ShouldGoNextState),
-    ChangeFinishStatus(TodoItem, ShouldGoNextState),
-    ArchiveFinishedTodo(ShouldGoNextState),
+    CountIncrement(TodoItem),
+    AddNewTodo(TodoItem),
+    ChangeFinishStatus(TodoItem),
+    ArchiveFinishedTodo(),
     StartTodo(DateTime<Local>, String, State),
     MovePrevState(),
     MoveNextState(),
