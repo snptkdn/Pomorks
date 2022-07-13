@@ -143,19 +143,19 @@ pub fn launch_tui(
             Event::Input(event) => {
                 if event.modifiers == KeyModifiers::NONE {
                     match event.code {
-                        KeyCode::Char(c) => match app.on_key(c, terminal.get_cursor().unwrap())? {
-                            Some(info) => return Ok(Some(info)),
-                            None => (),
-                        },
+                        KeyCode::Char(c) => {
+                            if let Some(info) = app.on_key(c, terminal.get_cursor().unwrap())? {
+                                return Ok(Some(info));
+                            }
+                        }
                         KeyCode::Left => app.on_left(),
                         KeyCode::Up => app.on_up(),
                         KeyCode::Right => app.on_right(),
                         KeyCode::Down => app.on_down(),
                         KeyCode::Enter => {
                             let res = app.on_enter()?;
-                            match res {
-                                Some(info) => return Ok(Some(info)),
-                                None => (),
+                            if let Some(info) = res {
+                                return Ok(Some(info));
                             }
                         }
                         KeyCode::Delete => app.on_delete(),
