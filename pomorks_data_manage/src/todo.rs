@@ -143,7 +143,7 @@ impl Ord for TodoItem {
             self.tag.cmp(&other.tag)
         } else if self.title != other.title {
             self.title.cmp(&other.title)
-        } else if self.eq(&other) {
+        } else if self.eq(other) {
             Ordering::Equal
         } else {
             panic!();
