@@ -106,9 +106,10 @@ where
         }
     };
 
-    let todos_title: Vec<ListItem> = app
-        .todos
-        .items
+    let mut todos = app.todos.items.clone();
+    todos.sort();
+
+    let todos_title: Vec<ListItem> = todos
         .iter()
         .map(|todo| {
             ListItem::new(vec![Spans::from(Span::styled(
@@ -118,9 +119,7 @@ where
         })
         .collect();
 
-    let todos_tag: Vec<ListItem> = app
-        .todos
-        .items
+    let todos_tag: Vec<ListItem> = todos
         .iter()
         .map(|todo| {
             ListItem::new(vec![Spans::from(Span::styled(
@@ -130,9 +129,7 @@ where
         })
         .collect();
 
-    let todos_project: Vec<ListItem> = app
-        .todos
-        .items
+    let todos_project: Vec<ListItem> = todos
         .iter()
         .map(|todo| {
             ListItem::new(vec![Spans::from(Span::styled(
