@@ -1,6 +1,7 @@
 use anyhow::{anyhow, Error, Result};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::str::FromStr;
 
@@ -63,6 +64,7 @@ impl Default for TodoList {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "PascalCase")]
+#[derive(Eq)]
 pub struct TodoItem {
     pub id: String,
     pub title: String,
@@ -124,6 +126,34 @@ impl FromStr for TodoItem {
             finished: false,
             detail: String::new(),
         })
+    }
+}
+
+impl PartialOrd for TodoItem {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for TodoItem {
+    fn cmp(&self, other: &Self) -> Ordering {
+        if self.project != other.project {
+            self.project.cmp(&other.project)
+        } else if self.tag != other.tag {
+            self.tag.cmp(&other.tag)
+        } else if self.title != other.title {
+            self.title.cmp(&other.title)
+        } else if self.eq(&other) {
+            Ordering::Equal
+        } else {
+            panic!();
+        }
+    }
+}
+
+impl PartialEq for TodoItem {
+    fn eq(&self, other: &Self) -> bool {
+        self.title == other.title && self.tag == other.tag && self.project == other.project
     }
 }
 
