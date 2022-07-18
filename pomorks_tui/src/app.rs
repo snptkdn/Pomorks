@@ -64,7 +64,7 @@ impl<'a> App<'a> {
             limit_time: State::get_limit_time(state),
             on_progress: false,
             state,
-            todos: StatefulList::with_items(todo_list.get_vec_of_todo()),
+            todos: StatefulList::with_items(todo_list.get_vec_of_todo_sorted()),
             enhanced_graphics,
             // TODO!:分かりにくすぎる...
             todo_focus: if let Some(id) = id {

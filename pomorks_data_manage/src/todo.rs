@@ -48,6 +48,14 @@ impl TodoList {
             .collect()
     }
 
+    pub fn get_vec_of_todo_sorted(&self) -> Vec<TodoItem> {
+        let mut vec_of_todo = self.get_vec_of_todo();
+
+        vec_of_todo.sort();
+
+        vec_of_todo
+    }
+
     pub fn drain_finished_todo(&mut self) -> Vec<TodoItem> {
         self.todo_list
             .drain_filter(|_id, todo| todo.finished)
