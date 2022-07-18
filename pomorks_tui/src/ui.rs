@@ -205,13 +205,13 @@ where
                         "Pomodoro: {}",
                         if app.todos.items[ind].executed_count < app.todos.items[ind].estimate_count
                         {
-                            "�?".repeat(app.todos.items[ind].executed_count)
+                            "■".repeat(app.todos.items[ind].executed_count)
                                 + &"□".repeat(
                                     app.todos.items[ind].estimate_count
                                         - app.todos.items[ind].executed_count,
                                 )
                         } else {
-                            "�?".repeat(app.todos.items[ind].executed_count)
+                            "■".repeat(app.todos.items[ind].executed_count)
                         }
                     ),
                     Style::default()
@@ -346,9 +346,9 @@ where
             format!(
                 "Pomodoro: {}",
                 if executed_count < estimate_count {
-                    "�?".repeat(executed_count) + &"□".repeat(estimate_count - executed_count)
+                    "■".repeat(executed_count) + &"□".repeat(estimate_count - executed_count)
                 } else {
-                    "�?".repeat(executed_count)
+                    "■".repeat(executed_count)
                 }
             ),
             Style::default().add_modifier(Modifier::BOLD),
